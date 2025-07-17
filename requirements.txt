@@ -1,0 +1,27 @@
+# Core LLM/agent framework
+langchain>=0.1.17
+langgraph>=0.0.45
+
+# Database: ORM and engine
+sqlalchemy>=2.0.25
+pandas>=2.2.2
+
+# Vector DB: Chroma + Embeddings
+langchain-chroma>=0.0.8
+chromadb>=0.5.0
+langchain-huggingface>=0.0.9
+datasets>=2.19.1
+
+# OpenAI LLM (official client)
+openai>=1.25.0
+
+# For loading env variables
+python-dotenv>=1.0.1
+
+# Optional: CLI color, progress bars (remove if not desired)
+tqdm>=4.66.4
+
+# If you want typing in Python <3.9
+typing-extensions>=4.11.0
+
+# If using only Python >=3.9, you may omit typing-extensions.
