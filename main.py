@@ -1,6 +1,7 @@
 from agent.workflow import ask_agent
 from db.db_setup import create_db_and_tables, populate_database
 from vectorstore.faq_vectorstore import FAQVectorStore
+from config import DATABASE_FILE, VECTOR_DB_DIR
 import os
 
 def initial_setup():
@@ -32,7 +33,9 @@ def cli_loop():
 
 if __name__ == "__main__":
     # Optional: skip setup if running in production where data already exists
-    run_setup = not (os.path.exists("olist.db") and os.path.exists("./faq_vectorstore"))
+    run_setup = not (
+        os.path.exists(DATABASE_FILE) and os.path.exists(VECTOR_DB_DIR)
+    )
     if run_setup:
         initial_setup()
     cli_loop()
