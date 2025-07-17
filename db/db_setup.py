@@ -1,7 +1,9 @@
 import os
-import pandas as pd
-from sqlalchemy import create_engine
+import csv
+from datetime import datetime
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy import DateTime, Integer, Float, SmallInteger
 from config import DATABASE_FILE, DATABASE_URL, DATA_FOLDER, CSV_TABLE_MAP
 from db.models import (
     Base,
@@ -19,8 +21,11 @@ from db.models import (
 def create_db_and_tables(database_url=DATABASE_URL):
     """
     Create the SQLite database file and all tables using ORM models, if not already present.
+    Enables foreign-key enforcement for SQLite.
     """
-    engine = create_engine(database_url)
+    engine = create_engine(database_url, connect_args={"check_same_thread": False})
+    with engine.connect() as conn:
+        conn.execute(text("PRAGMA foreign_keys=ON"))
     # Create all tables based on ORM metadata (FKs, PKs, relationships are preserved)
     Base.metadata.create_all(engine)
     return engine
@@ -34,24 +39,65 @@ def import_csv_to_db(engine, table_class, csv_path):
         print(f"Warning: CSV {csv_path} not found. Skipping import for {table_class.__tablename__}.")
         return
 
-    df = pd.read_csv(csv_path)
-    # Remove duplicates by PK to avoid IntegrityError (adjust as needed)
-    df = df.drop_duplicates()
-    # NaN to None for SQLAlchemy
-    df = df.where(pd.notnull(df), None)
+    expected_cols = [c.name for c in table_class.__table__.columns]
+    pk_cols = [c.name for c in table_class.__table__.primary_key.columns]
 
-    data = df.to_dict(orient='records')
-    # Bulk insert via ORM
     Session = sessionmaker(bind=engine)
     session = Session()
     objects = []
-    for row in data:
-        try:
-            obj = table_class(**row)
-            objects.append(obj)
-        except Exception as e:
-            print(f"Row skipped in {table_class.__tablename__}: {row} -- {e}")
-            continue
+    seen_keys = set()
+
+    def parse_value(val, column):
+        if val in ("", None, "NaN", "NaT"):  # treat empty strings as None
+            return None
+        if isinstance(column.type, DateTime):
+            try:
+                return datetime.fromisoformat(val)
+            except ValueError:
+                for fmt in ("%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M:%S.%f", "%Y-%m-%d"):
+                    try:
+                        return datetime.strptime(val, fmt)
+                    except ValueError:
+                        continue
+                return None
+        if isinstance(column.type, (Integer, SmallInteger)):
+            try:
+                return int(float(val))
+            except ValueError:
+                return None
+        if isinstance(column.type, Float):
+            try:
+                return float(val)
+            except ValueError:
+                return None
+        return val
+
+    with open(csv_path, newline="", encoding="utf-8") as csvfile:
+        reader = csv.DictReader(csvfile)
+        missing_cols = set(expected_cols) - set(reader.fieldnames)
+        if missing_cols:
+            print(
+                f"CSV {csv_path} missing columns {missing_cols}. Skipping import for {table_class.__tablename__}."
+            )
+            session.close()
+            return
+
+        for raw_row in reader:
+            key = tuple(raw_row[col] for col in pk_cols)
+            if key in seen_keys:
+                continue
+            seen_keys.add(key)
+
+            row = {}
+            for column in table_class.__table__.columns:
+                row[column.name] = parse_value(raw_row.get(column.name), column)
+
+            try:
+                obj = table_class(**row)
+                objects.append(obj)
+            except Exception as e:
+                print(f"Row skipped in {table_class.__tablename__}: {row} -- {e}")
+
     try:
         if objects:
             session.bulk_save_objects(objects)
