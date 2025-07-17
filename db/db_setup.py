@@ -72,7 +72,8 @@ def import_csv_to_db(engine, table_class, csv_path):
                 return None
         return val
 
-    with open(csv_path, newline="", encoding="utf-8") as csvfile:
+    # Handle optional UTF-8 BOM by using utf-8-sig
+    with open(csv_path, newline="", encoding="utf-8-sig") as csvfile:
         reader = csv.DictReader(csvfile)
         missing_cols = set(expected_cols) - set(reader.fieldnames)
         if missing_cols:
