@@ -5,9 +5,16 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # === Paths & Directories ===
-DATA_FOLDER = os.getenv("DATA_FOLDER", "./data")
-VECTOR_DB_DIR = os.getenv("VECTOR_DB_DIR", "./faq_vectorstore")
-DATABASE_FILE = os.getenv("DATABASE_FILE", "olist.db")
+# Resolve paths relative to this file so scripts can be executed from any
+# working directory.
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+DATA_FOLDER = os.getenv("DATA_FOLDER", os.path.join(BASE_DIR, "data"))
+VECTOR_DB_DIR = os.getenv("VECTOR_DB_DIR", os.path.join(BASE_DIR, "faq_vectorstore"))
+db_file = os.getenv("DATABASE_FILE", "olist.db")
+if not os.path.isabs(db_file):
+    db_file = os.path.join(BASE_DIR, db_file)
+DATABASE_FILE = db_file
 DATABASE_URL = f"sqlite:///{DATABASE_FILE}"
 
 # === External API Keys ===
