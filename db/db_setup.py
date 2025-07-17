@@ -1,6 +1,6 @@
 import os
 import pandas as pd
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 from config import DATABASE_FILE, DATABASE_URL, DATA_FOLDER, CSV_TABLE_MAP
 from db.models import (
@@ -19,8 +19,11 @@ from db.models import (
 def create_db_and_tables(database_url=DATABASE_URL):
     """
     Create the SQLite database file and all tables using ORM models, if not already present.
+    Enables foreign-key enforcement for SQLite.
     """
-    engine = create_engine(database_url)
+    engine = create_engine(database_url, connect_args={"check_same_thread": False})
+    with engine.connect() as conn:
+        conn.execute(text("PRAGMA foreign_keys=ON"))
     # Create all tables based on ORM metadata (FKs, PKs, relationships are preserved)
     Base.metadata.create_all(engine)
     return engine
@@ -35,6 +38,19 @@ def import_csv_to_db(engine, table_class, csv_path):
         return
 
     df = pd.read_csv(csv_path)
+    # Parse potential datetime columns
+    for col in df.columns:
+        if "date" in col or "timestamp" in col:
+            df[col] = pd.to_datetime(df[col], errors="coerce")
+
+    expected_cols = [c.name for c in table_class.__table__.columns]
+    missing_cols = set(expected_cols) - set(df.columns)
+    if missing_cols:
+        print(f"CSV {csv_path} missing columns {missing_cols}. Skipping import for {table_class.__tablename__}.")
+        return
+
+    df = df[expected_cols]
+
     # Remove duplicates by PK to avoid IntegrityError (adjust as needed)
     df = df.drop_duplicates()
     # NaN to None for SQLAlchemy
