@@ -123,6 +123,13 @@ You: Check order status for ID 000229ec398224ef6ca0657da4fc703e
 AI: Order 000229ec398224ef6ca0657da4fc703e status: delivered
 ```
 
+### 5. Launch the Web Chat (Gradio)
+
+```bash
+python gradio_app.py
+```
+This starts a simple web UI so you can chat with the agent in your browser.
+
 ## Sample Questions
 
 Try these example prompts to explore the agent's capabilities:
