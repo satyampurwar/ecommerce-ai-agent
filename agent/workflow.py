@@ -1,6 +1,6 @@
 from langgraph.graph import StateGraph
 from agent.state import AgentState
-from llm.llm import classify_intent, chat_completion
+from llm.llm import classify_intent
 from tools.business_tools import (
     search_faq,
     get_order_status,
