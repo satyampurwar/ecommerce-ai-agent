@@ -1,3 +1,5 @@
+"""Workflow definition for the conversational agent."""
+
 from langgraph.graph import StateGraph
 from agent.state import AgentState
 from llm.llm import classify_intent, rephrase_text
@@ -13,13 +15,15 @@ from config import DATABASE_URL, LOG_FILE
 from sqlalchemy import create_engine, text
 import datetime
 
-# Engine will be lazily initialised when the workflow is used
+# Engine is created lazily when the workflow first needs DB access
 engine = None
 
 def initialize_engine(database_url: str = DATABASE_URL):
     """Create the database engine if it hasn't been created yet."""
     global engine
     if engine is None:
+        # Create a new engine instance. check_same_thread=False allows
+        # SQLite to be accessed from different threads (as LangGraph may).
         engine = create_engine(database_url, connect_args={"check_same_thread": False})
         # Ensure foreign key constraints are enforced for SQLite
         with engine.connect() as conn:
@@ -31,6 +35,7 @@ def perception_node(state: AgentState) -> AgentState:
     Intent classification node: uses LLM to determine query intent.
     """
     query = state["input"]
+    # Use the LLM to determine what the user wants to do
     intent = classify_intent(query)
     state["classification"] = intent
     return state
@@ -41,9 +46,11 @@ def tool_node(state: AgentState) -> AgentState:
     """
     classification = state["classification"]
     query = state["input"]
+    # Lazily create DB engine and session for each invocation
     engine_local = initialize_engine()
     session = get_session(engine_local)
     try:
+        # Route the request to the appropriate business tool
         if classification == "order_status":
             output = get_order_status(query, session)
         elif classification == "order_details":
@@ -57,8 +64,10 @@ def tool_node(state: AgentState) -> AgentState:
         else:
             output = "I'm sorry, I could not classify your request."
     except Exception as e:
+        # Any unexpected error is returned to the user for visibility
         output = f"Error during tool dispatch: {e}"
     finally:
+        # Always close the DB session
         session.close()
     state["tool_output"] = output
     return state
@@ -67,6 +76,7 @@ def answer_node(state: AgentState) -> AgentState:
     """
     Formats the output for final agent answer.
     """
+    # Take the raw tool output and rephrase it for a nicer user experience
     answer = state["tool_output"]
     rephrased = rephrase_text(answer)
     state["output"] = rephrased
@@ -77,6 +87,7 @@ def log_interaction(user_query: str, agent_answer: str):
     Logs Q&A for learning, retraining, or analytics.
     """
     with open(LOG_FILE, "a", encoding="utf-8") as f:
+        # Store timestamped interaction for later analysis or fine tuning
         f.write(
             f"{datetime.datetime.now().isoformat()} | Q: {user_query} | A: {agent_answer}\n"
         )
@@ -114,6 +125,7 @@ def ask_agent(user_query: str) -> str:
     Returns agent's answer for a user query.
     """
     state = {"input": user_query}
+    # Execute the workflow graph and return the final answer
     result = graph.invoke(state)
     return result["output"]
 

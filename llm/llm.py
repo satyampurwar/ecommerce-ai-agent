@@ -1,3 +1,5 @@
+"""Helper functions for interacting with LLM providers."""
+
 from config import (
     OPENAI_API_KEY,
     OPENAI_MODEL_NAME,
@@ -21,14 +23,16 @@ def openai_chat_completion(
     Calls OpenAI ChatCompletion API and returns the output text.
     messages: List of dicts with 'role' and 'content'.
     """
+    # Basic wrapper around the OpenAI API
     if not OPENAI_API_KEY:
         raise RuntimeError("OPENAI_API_KEY not set.")
+
     client = OpenAI(api_key=OPENAI_API_KEY)
     response = client.chat.completions.create(
         model=model,
         messages=messages,
         temperature=temperature,
-        max_tokens=max_tokens
+        max_tokens=max_tokens,
     )
     return response.choices[0].message.content.strip()
 

@@ -1,3 +1,5 @@
+"""Utilities for creating and populating the SQLite database."""
+
 import os
 import csv
 from datetime import datetime
@@ -26,6 +28,7 @@ def create_db_and_tables(database_url=DATABASE_URL):
     print(f"[DB_SETUP] Creating engine for DB at: {database_url}")
     engine = create_engine(database_url, connect_args={"check_same_thread": False})
     with engine.connect() as conn:
+        # SQLite does not enforce FKs by default
         print("[DB_SETUP] Enabling SQLite foreign key constraints ...")
         conn.execute(text("PRAGMA foreign_keys=ON"))
     print("[DB_SETUP] Creating all tables (if not exist) ...")
@@ -55,6 +58,7 @@ def import_csv_to_db(engine, table_class, csv_path):
     seen_keys = set()
 
     def parse_value(val, column):
+        # Convert CSV string values to appropriate Python types for SQLAlchemy
         if val in ("", None, "NaN", "NaT"):
             return None
         if isinstance(column.type, DateTime):
@@ -115,6 +119,7 @@ def import_csv_to_db(engine, table_class, csv_path):
             print(f"[IMPORT] Finished reading CSV. Prepared {len(objects)} objects for bulk insert.")
 
         if objects:
+            # Bulk insert all rows for efficiency
             session.bulk_save_objects(objects)
             session.commit()
             print(f"[IMPORT][SUCCESS] Imported {len(objects)} records into '{table_class.__tablename__}'.")

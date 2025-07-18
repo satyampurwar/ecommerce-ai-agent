@@ -1,3 +1,5 @@
+"""SQLAlchemy ORM models for the Olist e-commerce dataset."""
+
 from sqlalchemy.orm import declarative_base, relationship, foreign
 from sqlalchemy import Column, String, Integer, Float, DateTime, ForeignKey, SmallInteger
 

@@ -1,7 +1,15 @@
+"""Utility for building and querying the FAQ vector store."""
+
 from datasets import load_dataset
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
-from config import VECTOR_DB_DIR, EMBEDDING_MODEL_NAME, COLLECTION_NAME, FAQ_DATASET_NAME, FAQ_DATASET_SPLIT
+from config import (
+    VECTOR_DB_DIR,
+    EMBEDDING_MODEL_NAME,
+    COLLECTION_NAME,
+    FAQ_DATASET_NAME,
+    FAQ_DATASET_SPLIT,
+)
 
 class FAQVectorStore:
     """
@@ -21,6 +29,7 @@ class FAQVectorStore:
         self.dataset_split = dataset_split
 
         self.embeddings = HuggingFaceEmbeddings(model_name=self.embedding_model_name)
+        # Persist embeddings using Chroma so we don't recompute on each run
         self.vector_db = Chroma(
             collection_name=self.collection_name,
             embedding_function=self.embeddings,
@@ -41,6 +50,7 @@ class FAQVectorStore:
             self.vector_db.add_texts(faqs, ids=ids)
             print(f"Persisted {len(faqs)} FAQs to vector store.")
         else:
+            # Already populated, nothing to do
             pass
 
     def semantic_search(self, query, k=2):
@@ -58,6 +68,7 @@ class FAQVectorStore:
         Adds a new FAQ to the vector store.
         """
         text = f"{question} {answer}"
+        # Generate a numeric ID for the new entry
         new_id = str(max([int(i) for i in self.vector_db.get()['ids']] + [0]) + 1)
         self.vector_db.add_texts([text], ids=[new_id])
         print(f"Added FAQ #{new_id}")
