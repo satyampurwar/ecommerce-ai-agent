@@ -42,7 +42,7 @@ class FAQVectorStore:
             self.vector_db.add_texts(faqs, ids=ids)
             print(f"Persisted {len(faqs)} FAQs to vector store.")
         else:
-            print("FAQ vector store already populated.")
+            pass
 
     def semantic_search(self, query, k=2):
         """
