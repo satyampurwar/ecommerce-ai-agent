@@ -130,7 +130,7 @@ def get_order_details(query, session: Session):
             seller = item.seller
             cat = None
             if product and product.category_translation:
-                cat = product.category_translation[0].product_category_name_english
+                cat = product.category_translation.product_category_name_english
             elif product:
                 cat = product.product_category_name
             lines.append(

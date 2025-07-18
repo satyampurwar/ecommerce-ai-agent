@@ -118,6 +118,7 @@ class OlistProductsDataset(Base):
         primaryjoin="foreign(OlistProductsDataset.product_category_name) == ProductCategoryNameTranslation.product_category_name",
         back_populates="products",
         viewonly=True,
+        uselist=False,
     )
 
 
