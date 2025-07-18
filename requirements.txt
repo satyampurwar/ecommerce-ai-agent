@@ -24,4 +24,7 @@ tqdm>=4.66.4
 # If you want typing in Python <3.9
 typing-extensions>=4.11.0
 
+# Embedding model
+sentence-transformers>=0.6.0
+
 # If using only Python >=3.9, you may omit typing-extensions.
