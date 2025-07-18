@@ -117,8 +117,8 @@ Example conversation:
 You: What is your refund policy?
 AI: [semantic FAQ answer]
 
-You: Check order status for ID 9f3c8ad34e86c41a0ef3e743c94e5a48
-AI: Order 9f3c8ad34e86c41a0ef3e743c94e5a48 status: delivered
+You: Check order status for ID 000229ec398224ef6ca0657da4fc703e
+AI: Order 000229ec398224ef6ca0657da4fc703e status: delivered
 ```
 
 ## Sample Questions
