@@ -7,8 +7,9 @@ from tools.business_tools import (
     get_refund_status,
     get_review
 )
-from db.db_setup import get_session, create_db_and_tables
+from db.db_setup import get_session
 from config import DATABASE_URL
+from sqlalchemy import create_engine, text
 import datetime
 
 # Engine will be lazily initialised when the workflow is used
@@ -18,7 +19,10 @@ def initialize_engine(database_url: str = DATABASE_URL):
     """Create the database engine if it hasn't been created yet."""
     global engine
     if engine is None:
-        engine = create_db_and_tables(database_url=database_url)
+        engine = create_engine(database_url, connect_args={"check_same_thread": False})
+        # Ensure foreign key constraints are enforced for SQLite
+        with engine.connect() as conn:
+            conn.execute(text("PRAGMA foreign_keys=ON"))
     return engine
 
 def perception_node(state: AgentState) -> AgentState:
