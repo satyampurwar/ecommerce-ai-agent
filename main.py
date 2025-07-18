@@ -1,7 +1,7 @@
 from agent.workflow import ask_agent
 from db.db_setup import create_db_and_tables, populate_database
 from vectorstore.faq_vectorstore import FAQVectorStore
-from config import DATABASE_FILE, VECTOR_DB_DIR, DATABASE_URL
+from config import DATABASE_FILE, VECTOR_DB_DIR, DATABASE_URL, DATA_FOLDER, CSV_TABLE_MAP
 from sqlalchemy import create_engine, text
 import os
 
@@ -12,8 +12,8 @@ def initial_setup():
     """
     print("Performing initial setup ...")
     # 1. Database
-    engine = create_db_and_tables()
-    populate_database(engine)
+    engine = create_db_and_tables(database_url=DATABASE_URL)
+    populate_database(engine, data_folder=DATA_FOLDER, table_map=CSV_TABLE_MAP)
     # 2. Vectorstore
     print("Ensuring FAQ vector store is ready ...")
     FAQVectorStore()  # Will populate if empty
