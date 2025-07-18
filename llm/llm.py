@@ -3,8 +3,13 @@ from config import (
     OPENAI_MODEL_NAME,
     OPENAI_TEMPERATURE,
     OPENAI_MAX_TOKENS,
+    INTENT_CLASSIFIER,
+    HF_INTENT_MODEL,
+    HUGGINGFACE_API_TOKEN,
 )
 from openai import OpenAI
+from transformers import pipeline
+from huggingface_hub import login
 
 def openai_chat_completion(
     messages,
@@ -29,12 +34,9 @@ def openai_chat_completion(
 
 # ---- Intent Classifier ----
 
-def classify_intent(query):
-    """
-    Classify the intent of the user's query.
-    Returns one of: 'faq', 'order_status', 'refund_status', 'review',
-    'order_details'.
-    """
+_hf_classifier = None
+
+def _openai_classify_intent(query: str) -> str:
     prompt = [
         {"role": "system", "content": "You are a helpful intent classifier."},
         {"role": "user", "content":
@@ -43,9 +45,39 @@ def classify_intent(query):
             f"Here is the query: {query}"}
     ]
     resp = openai_chat_completion(prompt)
-    intent = resp.strip().lower()
+    return resp.strip().lower()
+
+
+def _hf_classify_intent(query: str) -> str:
+    global _hf_classifier
+    if _hf_classifier is None:
+        if HUGGINGFACE_API_TOKEN:
+            login(HUGGINGFACE_API_TOKEN, add_to_git_credential=True)
+        _hf_classifier = pipeline(
+            "zero-shot-classification",
+            model=HF_INTENT_MODEL,
+            device=-1,
+        )
+    candidate_intents = [
+        "faq",
+        "order_status",
+        "refund_status",
+        "review",
+        "order_details",
+    ]
+    result = _hf_classifier(query, candidate_labels=candidate_intents)
+    return result["labels"][0].lower()
+
+
+def classify_intent(query: str) -> str:
+    """Classify the intent of the user's query using the configured provider."""
+    provider = INTENT_CLASSIFIER.lower()
+    if provider == "huggingface":
+        intent = _hf_classify_intent(query)
+    else:
+        intent = _openai_classify_intent(query)
+
     allowed = {"faq", "order_status", "refund_status", "review", "order_details"}
-    # Fallback logic (in case LLM is uncertain)
     if intent not in allowed:
         if any(word in query.lower() for word in {"detail", "item"}):
             intent = "order_details"

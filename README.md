@@ -89,10 +89,18 @@ conda activate ecommerce_agent
 
 ### 3. Set Up API Keys
 
-Create a `.env` file in your project root with your OpenAI key:
+Create a `.env` file in your project root with your API keys. At minimum you
+need the OpenAI key if you want to use OpenAI for intent detection:
 
 ```
 OPENAI_API_KEY=sk-xxxxxx
+# Optional: override the chat model (default: gpt-4o-mini)
+# OPENAI_MODEL_NAME=gpt-4o-mini
+
+# Optional: use HuggingFace instead of OpenAI for intent classification
+# INTENT_CLASSIFIER=huggingface
+# HUGGINGFACE_API_TOKEN=hf_xxxx
+# HF_INTENT_MODEL=facebook/bart-large-mnli
 ```
 
 ---
@@ -152,7 +160,8 @@ Edit `config.py` to set:
 
 * Model names (vector embeddings)
 * DB and vectorstore paths
-* HuggingFace or OpenAI model config
+* HuggingFace or OpenAI model config (OpenAI chat model: `gpt-4o-mini`, HF intent model: `facebook/bart-large-mnli`)
+* `INTENT_CLASSIFIER` to choose between OpenAI or HuggingFace for intent detection
 
 ---
 
