@@ -19,7 +19,6 @@ DATABASE_URL = f"sqlite:///{DATABASE_FILE}"
 
 # === External API Keys ===
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-HF_TOKEN = os.getenv("HF_TOKEN")
 
 # === LLM Settings ===
 OPENAI_MODEL_NAME = os.getenv("OPENAI_MODEL_NAME", "gpt-4o-mini")
@@ -57,8 +56,6 @@ def sanity_check():
         raise RuntimeError("OPENAI_API_KEY is not set in your environment (.env)")
     if not os.path.isdir(DATA_FOLDER):
         print(f"Warning: DATA_FOLDER '{DATA_FOLDER}' does not exist.")
-    if not HF_TOKEN:
-        print("Warning: HF_TOKEN not set. HuggingFace features may not work.")
 
 # Optionally run this at program start
 # sanity_check()
