@@ -193,7 +193,7 @@ Edit `config.py` to set:
 
 ## License
 
-MIT License (or your preferred license)
+MIT License
 
 ---
 
@@ -204,6 +204,3 @@ MIT License (or your preferred license)
 * HuggingFace Datasets, OpenAI GPT
 
 ---
-
-**Questions?**
-File an issue or email your maintainer.
