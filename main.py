@@ -1,8 +1,7 @@
 from agent.workflow import ask_agent
-from db.db_setup import create_db_and_tables, populate_database
-from vectorstore.faq_vectorstore import FAQVectorStore
-from config import DATABASE_FILE, VECTOR_DB_DIR, DATABASE_URL, DATA_FOLDER, CSV_TABLE_MAP
+from config import DATABASE_FILE, VECTOR_DB_DIR, DATABASE_URL
 from sqlalchemy import create_engine, text
+import subprocess
 import os
 
 def initial_setup():
@@ -11,14 +10,10 @@ def initial_setup():
     Only runs on first launch or when files are missing.
     """
     print("[SETUP] Performing initial setup ...")
-    # 1. Database
-    print("[SETUP] Checking and creating DB + tables ...")
-    engine = create_db_and_tables(database_url=DATABASE_URL)
-    print("[SETUP] Populating database ...")
-    populate_database(engine, data_folder=DATA_FOLDER, table_map=CSV_TABLE_MAP)
-    # 2. Vectorstore
-    print("[SETUP] Ensuring FAQ vector store is ready ...")
-    FAQVectorStore()  # Will populate if empty
+    print("[SETUP] Creating and populating database ...")
+    subprocess.run(["python", "-m", "db.db_setup"], check=True)
+    print("[SETUP] Building FAQ vector store ...")
+    subprocess.run(["python", "-m", "vectorstore.faq_vectorstore"], check=True)
     print("[SETUP] Initial setup complete.\n")
 
 def vectorstore_exists() -> bool:

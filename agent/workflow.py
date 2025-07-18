@@ -8,10 +8,18 @@ from tools.business_tools import (
     get_review
 )
 from db.db_setup import get_session, create_db_and_tables
+from config import DATABASE_URL
 import datetime
 
-# Ensure DB engine/session is set up once for the agent's lifetime
-engine = create_db_and_tables()
+# Engine will be lazily initialised when the workflow is used
+engine = None
+
+def initialize_engine(database_url: str = DATABASE_URL):
+    """Create the database engine if it hasn't been created yet."""
+    global engine
+    if engine is None:
+        engine = create_db_and_tables(database_url=database_url)
+    return engine
 
 def perception_node(state: AgentState) -> AgentState:
     """
@@ -28,7 +36,8 @@ def tool_node(state: AgentState) -> AgentState:
     """
     classification = state["classification"]
     query = state["input"]
-    session = get_session(engine)
+    engine_local = initialize_engine()
+    session = get_session(engine_local)
     try:
         if classification == "order_status":
             output = get_order_status(query, session)

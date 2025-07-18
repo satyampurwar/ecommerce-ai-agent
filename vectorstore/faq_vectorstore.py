@@ -63,8 +63,26 @@ class FAQVectorStore:
         self.vector_db.add_texts([text], ids=[new_id])
         print(f"Added FAQ #{new_id}")
 
-# For quick usage:
-faq_vectorstore = FAQVectorStore()
+faq_vectorstore = None
+
+def get_faq_vectorstore() -> FAQVectorStore:
+    """Return a singleton instance of FAQVectorStore, creating it if needed."""
+    global faq_vectorstore
+    if faq_vectorstore is None:
+        faq_vectorstore = FAQVectorStore()
+    return faq_vectorstore
 
 def semantic_faq_search(query, k=2):
-    return faq_vectorstore.semantic_search(query, k=k)
+    """Convenience wrapper for performing a FAQ semantic search."""
+    store = get_faq_vectorstore()
+    return store.semantic_search(query, k=k)
+
+
+def main():
+    """Command line entry-point for building the FAQ vector store."""
+    get_faq_vectorstore()
+    print("FAQ vector store is ready.")
+
+
+if __name__ == "__main__":
+    main()

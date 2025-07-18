@@ -159,25 +159,23 @@ def populate_database(engine, data_folder=DATA_FOLDER, table_map=CSV_TABLE_MAP):
     print("[POPULATE] All CSV imports attempted.")
 
 def get_session(engine):
-    """
-    Returns a new SQLAlchemy ORM session for database operations.
-    """
+    """Return a new SQLAlchemy ORM session for the given engine."""
     Session = sessionmaker(bind=engine)
     return Session()
 
-# --- Example usage (for standalone testing) ---
-if __name__ == "__main__":
-    print("[MAIN] Running db_setup.py directly (standalone test mode)")
+
+def setup_database():
+    """Create tables and populate them from CSV files."""
     engine = create_db_and_tables()
-    print("[MAIN] Now populating database from CSV files ...")
     populate_database(engine)
-    session = get_session(engine)
-    print("[MAIN] Example: Fetch 5 orders from 'olist_orders_dataset':")
-    try:
-        orders = session.query(OlistOrdersDataset).limit(5).all()
-        for order in orders:
-            print("Order:", order.order_id, order.customer_id, order.order_status)
-    except Exception as e:
-        print(f"[MAIN][ERROR] Could not query orders: {e}")
-    finally:
-        session.close()
+    return engine
+
+
+def main():
+    print("[MAIN] Creating database and importing CSV files ...")
+    setup_database()
+    print("[MAIN] Database setup complete.")
+
+
+if __name__ == "__main__":
+    main()
