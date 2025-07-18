@@ -3,6 +3,7 @@
 **Conversational AI for E-commerce Support**
 
 * ✅ Order status and review lookup (by order ID)
+* ✅ Comprehensive order details for any order
 * ✅ FAQ semantic search (vector DB)
 * ✅ Refund/payment check
 * ✅ Easily extensible agent workflow (LangGraph/LangChain + OpenAI)

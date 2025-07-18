@@ -1,4 +1,4 @@
-from sqlalchemy.orm import declarative_base, relationship
+from sqlalchemy.orm import declarative_base, relationship, foreign
 from sqlalchemy import Column, String, Integer, Float, DateTime, ForeignKey, SmallInteger
 
 Base = declarative_base()
@@ -113,6 +113,12 @@ class OlistProductsDataset(Base):
 
     # Relationships
     order_items = relationship("OlistOrderItemsDataset", back_populates="product")
+    category_translation = relationship(
+        "ProductCategoryNameTranslation",
+        primaryjoin="foreign(OlistProductsDataset.product_category_name) == ProductCategoryNameTranslation.product_category_name",
+        back_populates="products",
+        viewonly=True,
+    )
 
 
 class OlistSellersDataset(Base):
@@ -142,3 +148,11 @@ class ProductCategoryNameTranslation(Base):
 
     product_category_name = Column(String(50), primary_key=True, nullable=False)
     product_category_name_english = Column(String(50), nullable=False)
+
+    # Relationships
+    products = relationship(
+        "OlistProductsDataset",
+        primaryjoin="foreign(OlistProductsDataset.product_category_name) == ProductCategoryNameTranslation.product_category_name",
+        back_populates="category_translation",
+        viewonly=True,
+    )

@@ -22,21 +22,24 @@ def openai_chat_completion(messages, model="gpt-4o-mini", temperature=0.2, max_t
 def classify_intent(query):
     """
     Classify the intent of the user's query.
-    Returns one of: 'faq', 'order_status', 'refund_status', 'review'.
+    Returns one of: 'faq', 'order_status', 'refund_status', 'review',
+    'order_details'.
     """
     prompt = [
         {"role": "system", "content": "You are a helpful intent classifier."},
         {"role": "user", "content":
-            "Classify the user's query into one of these intents: faq, order_status, refund_status, review. "
+            "Classify the user's query into one of these intents: faq, order_status, refund_status, review, order_details. "
             "Respond with only the intent word, nothing else. "
             f"Here is the query: {query}"}
     ]
     resp = openai_chat_completion(prompt)
     intent = resp.strip().lower()
-    allowed = {"faq", "order_status", "refund_status", "review"}
+    allowed = {"faq", "order_status", "refund_status", "review", "order_details"}
     # Fallback logic (in case LLM is uncertain)
     if intent not in allowed:
-        if "order" in query:
+        if any(word in query.lower() for word in {"detail", "item"}):
+            intent = "order_details"
+        elif "order" in query.lower():
             intent = "order_status"
         else:
             intent = "faq"
