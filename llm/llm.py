@@ -87,6 +87,25 @@ def classify_intent(query: str) -> str:
             intent = "faq"
     return intent
 
+# ---- Rephrase Utility ----
+
+def rephrase_text(text: str) -> str:
+    """Rephrase text to be clear and conversational using OpenAI."""
+    prompt = [
+        {
+            "role": "system",
+            "content": (
+                "You rephrase agent answers to sound natural, easy to read, "
+                "and friendly for end users."
+            ),
+        },
+        {
+            "role": "user",
+            "content": f"Please rephrase the following text:\n{text}",
+        },
+    ]
+    return openai_chat_completion(prompt)
+
 # ---- General-purpose Chat ----
 
 def chat_completion(query, **kwargs):

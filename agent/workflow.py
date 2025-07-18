@@ -1,6 +1,6 @@
 from langgraph.graph import StateGraph
 from agent.state import AgentState
-from llm.llm import classify_intent
+from llm.llm import classify_intent, rephrase_text
 from tools.business_tools import (
     search_faq,
     get_order_status,
@@ -68,7 +68,8 @@ def answer_node(state: AgentState) -> AgentState:
     Formats the output for final agent answer.
     """
     answer = state["tool_output"]
-    state["output"] = answer
+    rephrased = rephrase_text(answer)
+    state["output"] = rephrased
     return state
 
 def log_interaction(user_query: str, agent_answer: str):
