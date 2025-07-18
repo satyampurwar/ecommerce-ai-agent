@@ -107,6 +107,8 @@ OPENAI_API_KEY=sk-xxxxxx
 ```bash
 python main.py
 ```
+The first execution automatically builds `olist.db` and the FAQ vector store by
+running the setup modules.
 
 Example conversation:
 
