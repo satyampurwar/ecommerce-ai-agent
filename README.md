@@ -66,12 +66,6 @@ conda env create -f deploy/conda/env.yml
 conda activate ecommerce_agent
 ```
 
-or (with pip):
-
-```bash
-pip install -r requirements.txt
-```
-
 ---
 
 ### 2. Prepare Data
