@@ -5,7 +5,8 @@ from tools.business_tools import (
     search_faq,
     get_order_status,
     get_refund_status,
-    get_review
+    get_review,
+    get_order_details,
 )
 from db.db_setup import get_session
 from config import DATABASE_URL
@@ -45,6 +46,8 @@ def tool_node(state: AgentState) -> AgentState:
     try:
         if classification == "order_status":
             output = get_order_status(query, session)
+        elif classification == "order_details":
+            output = get_order_details(query, session)
         elif classification == "faq":
             output = search_faq(query)
         elif classification == "refund_status":
