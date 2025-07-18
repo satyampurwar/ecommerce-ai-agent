@@ -95,13 +95,14 @@ For **OpenAI**:
 
 ```
 OPENAI_API_KEY=sk-xxxxxx
+OPENAI_MODEL_NAME=gpt-4o-mini
 LLM_PROVIDER=openai
 ```
 
 For **Hugging Face**:
 
 ```
-HUGGINGFACE_API_TOKEN=hf-xxxxxx
+HUGGINGFACE_API_TOKEN=hf_xxxxxx
 HUGGINGFACE_MODEL_NAME=EleutherAI/gpt-neo-2.7B
 LLM_PROVIDER=huggingface
 ```
