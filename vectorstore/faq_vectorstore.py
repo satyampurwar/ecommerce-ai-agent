@@ -1,20 +1,28 @@
-import os
 from datasets import load_dataset
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
-from config import VECTOR_DB_DIR, EMBEDDING_MODEL_NAME, COLLECTION_NAME, FAQ_DATASET_NAME, FAQ_DATASET_SPLIT
+from config import (
+    VECTOR_DB_DIR,
+    EMBEDDING_MODEL_NAME,
+    COLLECTION_NAME,
+    FAQ_DATASET_NAME,
+    FAQ_DATASET_SPLIT,
+)
+
 
 class FAQVectorStore:
     """
     Handles setup, persistence, and semantic search for FAQ using Chroma and sentence-transformers.
     """
 
-    def __init__(self, 
-                 vector_db_dir=VECTOR_DB_DIR,
-                 embedding_model_name=EMBEDDING_MODEL_NAME,
-                 collection_name=COLLECTION_NAME,
-                 dataset_name=FAQ_DATASET_NAME,
-                 dataset_split=FAQ_DATASET_SPLIT):
+    def __init__(
+        self,
+        vector_db_dir=VECTOR_DB_DIR,
+        embedding_model_name=EMBEDDING_MODEL_NAME,
+        collection_name=COLLECTION_NAME,
+        dataset_name=FAQ_DATASET_NAME,
+        dataset_split=FAQ_DATASET_SPLIT,
+    ):
         self.vector_db_dir = vector_db_dir
         self.embedding_model_name = embedding_model_name
         self.collection_name = collection_name
@@ -25,7 +33,7 @@ class FAQVectorStore:
         self.vector_db = Chroma(
             collection_name=self.collection_name,
             embedding_function=self.embeddings,
-            persist_directory=self.vector_db_dir
+            persist_directory=self.vector_db_dir,
         )
         self._ensure_faqs_loaded()
 
@@ -33,7 +41,7 @@ class FAQVectorStore:
         """
         Checks if the FAQ vector DB is already populated. If not, loads and embeds the dataset.
         """
-        ids = self.vector_db.get().get('ids', [])
+        ids = self.vector_db.get().get("ids", [])
         if not ids:
             print("Loading FAQ dataset and populating vector store...")
             faq_dataset = load_dataset(self.dataset_name)[self.dataset_split]
@@ -59,11 +67,13 @@ class FAQVectorStore:
         Adds a new FAQ to the vector store.
         """
         text = f"{question} {answer}"
-        new_id = str(max([int(i) for i in self.vector_db.get()['ids']] + [0]) + 1)
+        new_id = str(max([int(i) for i in self.vector_db.get()["ids"]] + [0]) + 1)
         self.vector_db.add_texts([text], ids=[new_id])
         print(f"Added FAQ #{new_id}")
 
+
 faq_vectorstore = None
+
 
 def get_faq_vectorstore() -> FAQVectorStore:
     """Return a singleton instance of FAQVectorStore, creating it if needed."""
@@ -71,6 +81,7 @@ def get_faq_vectorstore() -> FAQVectorStore:
     if faq_vectorstore is None:
         faq_vectorstore = FAQVectorStore()
     return faq_vectorstore
+
 
 def semantic_faq_search(query, k=2):
     """Convenience wrapper for performing a FAQ semantic search."""
