@@ -14,7 +14,7 @@ import re
 
 # --- FAQ Tool ---
 
-def search_faq(query, k=2):
+def search_faq(query, k=1):
     """
     Semantic FAQ search using vectorstore.
     """
