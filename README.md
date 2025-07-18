@@ -89,10 +89,21 @@ conda activate ecommerce_agent
 
 ### 3. Set Up API Keys
 
-Create a `.env` file in your project root with your OpenAI key:
+Create a `.env` file in your project root with credentials for your chosen provider.
+
+For **OpenAI**:
 
 ```
 OPENAI_API_KEY=sk-xxxxxx
+LLM_PROVIDER=openai
+```
+
+For **Hugging Face**:
+
+```
+HUGGINGFACE_API_TOKEN=hf-xxxxxx
+HUGGINGFACE_MODEL_NAME=EleutherAI/gpt-neo-2.7B
+LLM_PROVIDER=huggingface
 ```
 
 ---
@@ -153,6 +164,7 @@ Edit `config.py` to set:
 * Model names (vector embeddings)
 * DB and vectorstore paths
 * HuggingFace or OpenAI model config
+* `LLM_PROVIDER` to switch between OpenAI and Hugging Face
 
 ---
 
@@ -167,7 +179,7 @@ Edit `config.py` to set:
 
 ## Troubleshooting
 
-* Make sure all CSVs are in `data/` and `.env` contains your API key.
+* Make sure all CSVs are in `data/` and `.env` contains your API credentials.
 * For vectorstore/embedding errors: check internet access for model download on first run.
 * If you change DB schema or CSVs, delete `olist.db` and rerun `main.py`.
 
