@@ -96,7 +96,6 @@ def import_csv_to_db(engine, table_class, csv_path):
             for raw_row in reader:
                 key = tuple(raw_row[col] for col in pk_cols)
                 if key in seen_keys:
-                    print(f"[IMPORT][SKIP] Duplicate key found (skipping): {key}")
                     continue
                 seen_keys.add(key)
 
