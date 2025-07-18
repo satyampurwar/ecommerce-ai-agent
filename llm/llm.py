@@ -3,8 +3,12 @@ from config import (
     OPENAI_MODEL_NAME,
     OPENAI_TEMPERATURE,
     OPENAI_MAX_TOKENS,
+    HUGGINGFACE_API_TOKEN,
+    HUGGINGFACE_MODEL_NAME,
+    LLM_PROVIDER,
 )
 from openai import OpenAI
+import requests
 
 def openai_chat_completion(
     messages,
@@ -27,9 +31,38 @@ def openai_chat_completion(
     )
     return response.choices[0].message.content.strip()
 
+
+def huggingface_chat_completion(
+    messages,
+    model: str = HUGGINGFACE_MODEL_NAME,
+    temperature: float = OPENAI_TEMPERATURE,
+    max_tokens: int = OPENAI_MAX_TOKENS,
+):
+    """Call Hugging Face Inference API and return the generated text."""
+    if not HUGGINGFACE_API_TOKEN:
+        raise RuntimeError("HUGGINGFACE_API_TOKEN not set.")
+    api_url = f"https://api-inference.huggingface.co/models/{model}"
+    headers = {"Authorization": f"Bearer {HUGGINGFACE_API_TOKEN}"}
+    # Simple prompt concatenation for single-turn chat
+    prompt = "\n".join(m["content"] for m in messages)
+    payload = {
+        "inputs": prompt,
+        "parameters": {"temperature": temperature, "max_new_tokens": max_tokens},
+    }
+    resp = requests.post(api_url, headers=headers, json=payload, timeout=60)
+    resp.raise_for_status()
+    data = resp.json()
+    if isinstance(data, dict) and "generated_text" in data:
+        text = data["generated_text"]
+    elif isinstance(data, list) and data and "generated_text" in data[0]:
+        text = data[0]["generated_text"]
+    else:
+        raise RuntimeError(f"HuggingFace API error: {data}")
+    return text.strip()
+
 # ---- Intent Classifier ----
 
-def classify_intent(query):
+def classify_intent(query, provider: str = LLM_PROVIDER):
     """
     Classify the intent of the user's query.
     Returns one of: 'faq', 'order_status', 'refund_status', 'review',
@@ -42,7 +75,7 @@ def classify_intent(query):
             "Respond with only the intent word, nothing else. "
             f"Here is the query: {query}"}
     ]
-    resp = openai_chat_completion(prompt)
+    resp = chat_completion(prompt, provider=provider)
     intent = resp.strip().lower()
     allowed = {"faq", "order_status", "refund_status", "review", "order_details"}
     # Fallback logic (in case LLM is uncertain)
@@ -57,12 +90,20 @@ def classify_intent(query):
 
 # ---- General-purpose Chat ----
 
-def chat_completion(query, **kwargs):
-    """
-    Generic chat completion utility.
-    """
-    messages = [{"role": "user", "content": query}]
-    return openai_chat_completion(messages, **kwargs)
+def chat_completion(query, provider: str = LLM_PROVIDER, **kwargs):
+    """Generic chat completion utility supporting multiple providers."""
+    if isinstance(query, str):
+        messages = [{"role": "user", "content": query}]
+    else:
+        messages = query
+
+    provider = provider.lower()
+    if provider == "openai":
+        return openai_chat_completion(messages, **kwargs)
+    elif provider in {"hf", "huggingface"}:
+        return huggingface_chat_completion(messages, **kwargs)
+    else:
+        raise ValueError(f"Unknown provider '{provider}'")
 
 # ---- Quick test ----
 if __name__ == "__main__":

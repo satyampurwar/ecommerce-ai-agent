@@ -19,11 +19,16 @@ DATABASE_URL = f"sqlite:///{DATABASE_FILE}"
 
 # === External API Keys ===
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+HUGGINGFACE_API_TOKEN = os.getenv("HUGGINGFACE_API_TOKEN")
+
+# Choose LLM provider: 'openai' or 'huggingface'
+LLM_PROVIDER = os.getenv("LLM_PROVIDER", "openai").lower()
 
 # === LLM Settings ===
 OPENAI_MODEL_NAME = os.getenv("OPENAI_MODEL_NAME", "gpt-4o-mini")
 OPENAI_TEMPERATURE = float(os.getenv("OPENAI_TEMPERATURE", "0.2"))
 OPENAI_MAX_TOKENS = int(os.getenv("OPENAI_MAX_TOKENS", "512"))
+HUGGINGFACE_MODEL_NAME = os.getenv("HUGGINGFACE_MODEL_NAME", "EleutherAI/gpt-neo-2.7B")
 
 # === Model & Embedding Settings ===
 EMBEDDING_MODEL_NAME = os.getenv("EMBEDDING_MODEL_NAME", "sentence-transformers/all-MiniLM-L6-v2")
@@ -52,8 +57,10 @@ LOG_FILE = os.getenv("LOG_FILE", "agent_interactions.log")
 
 # === Sanity checks (optional, production-safe) ===
 def sanity_check():
-    if not OPENAI_API_KEY:
+    if LLM_PROVIDER == "openai" and not OPENAI_API_KEY:
         raise RuntimeError("OPENAI_API_KEY is not set in your environment (.env)")
+    if LLM_PROVIDER == "huggingface" and not HUGGINGFACE_API_TOKEN:
+        raise RuntimeError("HUGGINGFACE_API_TOKEN is not set in your environment (.env)")
     if not os.path.isdir(DATA_FOLDER):
         print(f"Warning: DATA_FOLDER '{DATA_FOLDER}' does not exist.")
 
