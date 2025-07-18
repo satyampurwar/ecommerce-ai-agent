@@ -1,7 +1,17 @@
-from config import OPENAI_API_KEY
+from config import (
+    OPENAI_API_KEY,
+    OPENAI_MODEL_NAME,
+    OPENAI_TEMPERATURE,
+    OPENAI_MAX_TOKENS,
+)
 from openai import OpenAI
 
-def openai_chat_completion(messages, model="gpt-4o-mini", temperature=0.2, max_tokens=512):
+def openai_chat_completion(
+    messages,
+    model: str = OPENAI_MODEL_NAME,
+    temperature: float = OPENAI_TEMPERATURE,
+    max_tokens: int = OPENAI_MAX_TOKENS,
+):
     """
     Calls OpenAI ChatCompletion API and returns the output text.
     messages: List of dicts with 'role' and 'content'.

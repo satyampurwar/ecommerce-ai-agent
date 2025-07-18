@@ -9,7 +9,7 @@ from tools.business_tools import (
     get_order_details,
 )
 from db.db_setup import get_session
-from config import DATABASE_URL
+from config import DATABASE_URL, LOG_FILE
 from sqlalchemy import create_engine, text
 import datetime
 
@@ -75,8 +75,10 @@ def log_interaction(user_query: str, agent_answer: str):
     """
     Logs Q&A for learning, retraining, or analytics.
     """
-    with open("agent_interactions.log", "a", encoding="utf-8") as f:
-        f.write(f"{datetime.datetime.now().isoformat()} | Q: {user_query} | A: {agent_answer}\n")
+    with open(LOG_FILE, "a", encoding="utf-8") as f:
+        f.write(
+            f"{datetime.datetime.now().isoformat()} | Q: {user_query} | A: {agent_answer}\n"
+        )
 
 def learning_node(state: AgentState) -> AgentState:
     """
