@@ -62,7 +62,7 @@ ecommerce_agent/
 ```bash
 git clone <your-repo-url>
 cd ecommerce-llm-agent
-conda env create -f deploy/conda.env.yml
+conda env create -f deploy/conda/env.yml
 conda activate ecommerce_agent
 ```
 
