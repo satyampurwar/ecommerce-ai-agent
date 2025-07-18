@@ -1,6 +1,6 @@
 from langgraph.graph import StateGraph
 from agent.state import AgentState
-from llm.llm import classify_intent, chat_completion
+from llm.llm import classify_intent
 from tools.business_tools import (
     search_faq,
     get_order_status,
@@ -16,6 +16,7 @@ import datetime
 # Engine will be lazily initialised when the workflow is used
 engine = None
 
+
 def initialize_engine(database_url: str = DATABASE_URL):
     """Create the database engine if it hasn't been created yet."""
     global engine
@@ -26,6 +27,7 @@ def initialize_engine(database_url: str = DATABASE_URL):
             conn.execute(text("PRAGMA foreign_keys=ON"))
     return engine
 
+
 def perception_node(state: AgentState) -> AgentState:
     """
     Intent classification node: uses LLM to determine query intent.
@@ -34,6 +36,7 @@ def perception_node(state: AgentState) -> AgentState:
     intent = classify_intent(query)
     state["classification"] = intent
     return state
+
 
 def tool_node(state: AgentState) -> AgentState:
     """
@@ -63,6 +66,7 @@ def tool_node(state: AgentState) -> AgentState:
     state["tool_output"] = output
     return state
 
+
 def answer_node(state: AgentState) -> AgentState:
     """
     Formats the output for final agent answer.
@@ -70,6 +74,7 @@ def answer_node(state: AgentState) -> AgentState:
     answer = state["tool_output"]
     state["output"] = answer
     return state
+
 
 def log_interaction(user_query: str, agent_answer: str):
     """
@@ -80,12 +85,14 @@ def log_interaction(user_query: str, agent_answer: str):
             f"{datetime.datetime.now().isoformat()} | Q: {user_query} | A: {agent_answer}\n"
         )
 
+
 def learning_node(state: AgentState) -> AgentState:
     """
     Learning step: log output for future improvement.
     """
     log_interaction(state.get("input", ""), state.get("output", ""))
     return state
+
 
 def build_workflow() -> StateGraph:
     """
@@ -103,9 +110,11 @@ def build_workflow() -> StateGraph:
     workflow.add_edge("answer", "learning")
     return workflow.compile()
 
+
 # --- Main agent callable ---
 
 graph = build_workflow()
+
 
 def ask_agent(user_query: str) -> str:
     """
@@ -115,6 +124,7 @@ def ask_agent(user_query: str) -> str:
     state = {"input": user_query}
     result = graph.invoke(state)
     return result["output"]
+
 
 # Example usage for CLI
 if __name__ == "__main__":

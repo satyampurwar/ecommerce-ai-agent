@@ -4,7 +4,7 @@ from datetime import datetime
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import DateTime, Integer, Float, SmallInteger
-from config import DATABASE_FILE, DATABASE_URL, DATA_FOLDER, CSV_TABLE_MAP
+from config import DATABASE_URL, DATA_FOLDER, CSV_TABLE_MAP
 from db.models import (
     Base,
     OlistCustomersDataset,
@@ -17,6 +17,7 @@ from db.models import (
     OlistGeolocationDataset,
     ProductCategoryNameTranslation,
 )
+
 
 def create_db_and_tables(database_url=DATABASE_URL):
     """
@@ -33,21 +34,30 @@ def create_db_and_tables(database_url=DATABASE_URL):
     print("[DB_SETUP] All tables should now exist.")
     return engine
 
+
 def import_csv_to_db(engine, table_class, csv_path):
     """
     Import a CSV file to the database using the provided ORM table class.
     Uses ORM bulk_save_objects for correct relationships.
     """
-    print(f"[IMPORT] Attempting to import {csv_path} into table '{table_class.__tablename__}' ...")
+    print(
+        f"[IMPORT] Attempting to import {csv_path} into table '{table_class.__tablename__}' ..."
+    )
 
     if not os.path.exists(csv_path):
-        print(f"[IMPORT][WARNING] CSV {csv_path} not found. Skipping import for '{table_class.__tablename__}'.")
+        print(
+            f"[IMPORT][WARNING] CSV {csv_path} not found. Skipping import for '{table_class.__tablename__}'."
+        )
         return
 
     expected_cols = [c.name for c in table_class.__table__.columns]
     pk_cols = [c.name for c in table_class.__table__.primary_key.columns]
-    print(f"[IMPORT] Table '{table_class.__tablename__}' expects columns: {expected_cols}")
-    print(f"[IMPORT] Table '{table_class.__tablename__}' primary key columns: {pk_cols}")
+    print(
+        f"[IMPORT] Table '{table_class.__tablename__}' expects columns: {expected_cols}"
+    )
+    print(
+        f"[IMPORT] Table '{table_class.__tablename__}' primary key columns: {pk_cols}"
+    )
 
     Session = sessionmaker(bind=engine)
     session = Session()
@@ -107,25 +117,38 @@ def import_csv_to_db(engine, table_class, csv_path):
                     obj = table_class(**row)
                     objects.append(obj)
                     row_count += 1
-                    if row_count <= 2:  # Only print for the first couple of rows for brevity
+                    if (
+                        row_count <= 2
+                    ):  # Only print for the first couple of rows for brevity
                         print(f"[IMPORT] Example row {row_count}: {row}")
                 except Exception as e:
-                    print(f"[IMPORT][SKIP] Row skipped in '{table_class.__tablename__}': {row} -- {e}")
+                    print(
+                        f"[IMPORT][SKIP] Row skipped in '{table_class.__tablename__}': {row} -- {e}"
+                    )
 
-            print(f"[IMPORT] Finished reading CSV. Prepared {len(objects)} objects for bulk insert.")
+            print(
+                f"[IMPORT] Finished reading CSV. Prepared {len(objects)} objects for bulk insert."
+            )
 
         if objects:
             session.bulk_save_objects(objects)
             session.commit()
-            print(f"[IMPORT][SUCCESS] Imported {len(objects)} records into '{table_class.__tablename__}'.")
+            print(
+                f"[IMPORT][SUCCESS] Imported {len(objects)} records into '{table_class.__tablename__}'."
+            )
         else:
-            print(f"[IMPORT][WARNING] No valid records found in {csv_path} for table '{table_class.__tablename__}'.")
+            print(
+                f"[IMPORT][WARNING] No valid records found in {csv_path} for table '{table_class.__tablename__}'."
+            )
     except Exception as e:
         session.rollback()
-        print(f"[IMPORT][FAILURE] Failed to insert records into '{table_class.__tablename__}': {e}")
+        print(
+            f"[IMPORT][FAILURE] Failed to insert records into '{table_class.__tablename__}': {e}"
+        )
     finally:
         session.close()
         print(f"[IMPORT] Session closed for table '{table_class.__tablename__}'.")
+
 
 def populate_database(engine, data_folder=DATA_FOLDER, table_map=CSV_TABLE_MAP):
     """
@@ -138,15 +161,15 @@ def populate_database(engine, data_folder=DATA_FOLDER, table_map=CSV_TABLE_MAP):
     print(f"[POPULATE] Table map: {table_map}")
     # Ordered by dependencies (parents first, then children)
     table_sequence = [
-        (OlistCustomersDataset, 'olist_customers_dataset'),
-        (OlistGeolocationDataset, 'olist_geolocation_dataset'),
-        (OlistProductsDataset, 'olist_products_dataset'),
-        (OlistSellersDataset, 'olist_sellers_dataset'),
-        (OlistOrdersDataset, 'olist_orders_dataset'),
-        (OlistOrderItemsDataset, 'olist_order_items_dataset'),
-        (OlistOrderPaymentsDataset, 'olist_order_payments_dataset'),
-        (OlistOrderReviewsDataset, 'olist_order_reviews_dataset'),
-        (ProductCategoryNameTranslation, 'product_category_name_translation'),
+        (OlistCustomersDataset, "olist_customers_dataset"),
+        (OlistGeolocationDataset, "olist_geolocation_dataset"),
+        (OlistProductsDataset, "olist_products_dataset"),
+        (OlistSellersDataset, "olist_sellers_dataset"),
+        (OlistOrdersDataset, "olist_orders_dataset"),
+        (OlistOrderItemsDataset, "olist_order_items_dataset"),
+        (OlistOrderPaymentsDataset, "olist_order_payments_dataset"),
+        (OlistOrderReviewsDataset, "olist_order_reviews_dataset"),
+        (ProductCategoryNameTranslation, "product_category_name_translation"),
     ]
     for table_class, table_key in table_sequence:
         csv_file = table_map.get(table_key)
@@ -156,6 +179,7 @@ def populate_database(engine, data_folder=DATA_FOLDER, table_map=CSV_TABLE_MAP):
         csv_path = os.path.join(data_folder, csv_file)
         import_csv_to_db(engine, table_class, csv_path)
     print("[POPULATE] All CSV imports attempted.")
+
 
 def get_session(engine):
     """Return a new SQLAlchemy ORM session for the given engine."""
