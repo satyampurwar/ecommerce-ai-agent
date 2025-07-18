@@ -7,6 +7,7 @@ conda-meta/
 *.conda
 *.env
 *.yml
+!docker-compose.yml
 
 # Python cache and compiled files
 __pycache__/

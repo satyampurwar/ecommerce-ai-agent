@@ -1,0 +1,28 @@
+# Files and directories that should not be copied into
+# the Docker image. Keeping the image small speeds up
+# builds and avoids leaking secrets.
+
+# Git repository data
+.git
+.gitignore
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual environment directories
+.env/
+.venv/
+env/
+venv/
+conda-meta/
+
+# Local environment files and secrets
+.env
+
+# Local databases and logs (will be recreated in volumes)
+*.db
+olist.db
+faq_vectorstore/
+*.log

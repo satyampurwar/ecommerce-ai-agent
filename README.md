@@ -191,6 +191,38 @@ Edit `config.py` to set:
 
 ---
 
+## Docker Quickstart
+
+The project includes a `Dockerfile` and `docker-compose.yml` so you can run
+everything inside containers. Follow these steps:
+
+1. **Create a `.env` file** with your OpenAI (and optional HuggingFace) keys.
+2. **Build the image** (only required the first time):
+
+   ```bash
+   docker-compose build
+   ```
+
+3. **Start the container** and open <http://localhost:7860> in your browser:
+
+   ```bash
+   docker-compose up
+   ```
+
+   Add `-d` to run in the background.
+
+4. **Stop the container** when you're done:
+
+   ```bash
+   docker-compose down
+   ```
+
+Compose mounts the `data/` folder read-only and creates two persistent Docker
+volumes (`db-data` and `vectorstore-data`) to store the SQLite database and the
+FAQ vector store. These volumes ensure your data is saved between runs.
+
+---
+
 ## License
 
 MIT License
