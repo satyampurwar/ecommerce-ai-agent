@@ -121,6 +121,21 @@ You: Check order status for ID 9f3c8ad34e86c41a0ef3e743c94e5a48
 AI: Order 9f3c8ad34e86c41a0ef3e743c94e5a48 status: delivered
 ```
 
+## Sample Questions
+
+Try these example prompts to explore the agent's capabilities:
+
+1. **General FAQ** – "What is your refund policy?" or "How do I return an item?"
+2. **Order Status** – "Where is my order `<order_id>`?"
+3. **Order Details** – "Give me all details for order `<order_id>` (items, customer city, payments, review)."
+4. **Refund/Payment** – "Has order `<order_id>` been refunded?"
+5. **Order Review** – "What review did I leave for order `<order_id>`?"
+6. **Item Breakdown** – "Which products were in order `<order_id>` and what categories are they in?"
+7. **Seller Info** – "Who were the sellers for the items in order `<order_id>`?"
+8. **Payment Method** – "How much was paid for order `<order_id>` and what payment method was used?"
+9. **Customer Location** – "Which city/state is the customer from for order `<order_id>`?"
+10. **Additional FAQs** – "How long does shipping usually take?" or "What is your return policy for defective items?"
+
 ---
 
 ## How it Works
