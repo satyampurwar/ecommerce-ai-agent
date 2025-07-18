@@ -1,3 +1,5 @@
+"""Typed state objects used by :mod:`agent.workflow`."""
+
 from typing import TypedDict, Optional, List, Dict, Any
 
 class AgentState(TypedDict, total=False):

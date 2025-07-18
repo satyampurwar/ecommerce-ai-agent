@@ -64,6 +64,8 @@ git clone <your-repo-url>
 cd ecommerce-llm-agent
 conda env create -f deploy/conda/env.yml
 conda activate ecommerce_agent
+# Alternatively use pip:
+# pip install -r requirements.txt
 ```
 
 ---

@@ -1,3 +1,5 @@
+"""Business logic tools used by the agent."""
+
 from sqlalchemy.orm import Session
 from db.models import (
     OlistOrdersDataset,
@@ -18,6 +20,7 @@ def search_faq(query, k=1):
     """
     Semantic FAQ search using vectorstore.
     """
+    # Delegate to the vector store helper which performs semantic search
     return semantic_faq_search(query, k=k)
 
 faq_tool = {
@@ -32,6 +35,7 @@ def get_order_status(query, session: Session):
     """
     Retrieve order status from DB using order_id found in the query.
     """
+    # Extract an order_id (32 hex chars) from the query
     match = re.search(r'(\b[0-9a-f]{32,}\b)', query)
     order_id = match.group(1) if match else None
     if not order_id:
@@ -57,6 +61,7 @@ def get_refund_status(query, session: Session):
     """
     Check refund/payment info for an order.
     """
+    # Extract order_id from the user query
     match = re.search(r'(\b[0-9a-f]{32,}\b)', query)
     order_id = match.group(1) if match else None
     if not order_id:
@@ -81,6 +86,7 @@ def get_review(query, session: Session):
     """
     Retrieve review score/message for an order.
     """
+    # Pull order_id out of the query text
     match = re.search(r'(\b[0-9a-f]{32,}\b)', query)
     order_id = match.group(1) if match else None
     if not order_id:
@@ -104,6 +110,7 @@ def get_order_details(query, session: Session):
     Retrieve a detailed summary for an order including customer, items,
     payments and reviews.
     """
+    # Look for the order ID so we know which order to summarise
     match = re.search(r'(\b[0-9a-f]{32,}\b)', query)
     order_id = match.group(1) if match else None
     if not order_id:
@@ -124,6 +131,7 @@ def get_order_details(query, session: Session):
         )
 
     if order.order_items:
+        # Show each item along with category and seller info
         lines.append("Items:")
         for item in order.order_items:
             product = item.product
@@ -137,6 +145,7 @@ def get_order_details(query, session: Session):
                 f"  - {item.product_id} ({cat or 'unknown category'}) from {seller.seller_id} price {item.price:.2f}"
             )
     if order.order_payments:
+        # Summarise payment methods and total paid
         total = sum(p.payment_value or 0 for p in order.order_payments)
         methods = ", ".join({p.payment_type for p in order.order_payments})
         lines.append(f"Payments: {total:.2f} via {methods}")

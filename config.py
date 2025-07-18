@@ -1,3 +1,5 @@
+"""Configuration and environment variables for the project."""
+
 import os
 from dotenv import load_dotenv
 
