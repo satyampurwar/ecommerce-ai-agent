@@ -60,9 +60,9 @@ ecommerce_agent/
 ### 1. Clone and Install
 
 ```bash
-git clone <your-repo-url> ecommerce_agent
-cd ecommerce_agent
-conda env create -f environment.yml
+git clone <your-repo-url>
+cd ecommerce-llm-agent
+conda env create -f deploy/conda.env.yml
 conda activate ecommerce_agent
 ```
 
