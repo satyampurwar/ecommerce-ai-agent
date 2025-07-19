@@ -200,26 +200,76 @@ everything inside containers. Follow these steps:
 2. **Build the image** (only required the first time):
 
    ```bash
-   docker-compose build
+   docker compose build
    ```
 
-3. **Start the container** and open <http://localhost:7860> in your browser:
+   The first build copies the contents of `data/` into the image (Step 6 in the
+   `Dockerfile`). Once that data lives in the volume you can comment out that
+   step for subsequent builds.
+
+3. **Start the application** and open <http://localhost:7860> in your browser:
 
    ```bash
-   docker-compose up
+   docker compose up
    ```
 
-   Add `-d` to run in the background.
+   - **Detached mode**
 
-4. **Stop the container** when you're done:
+     ```bash
+     docker compose up -d
+     ```
+
+   - **Interactive shell**
+
+     ```bash
+     docker compose run --entrypoint bash -it app
+     ```
+
+4. **Stop or restart the containers**:
 
    ```bash
-   docker-compose down
+   docker compose stop     # stop
+   docker compose restart  # restart
    ```
 
-Compose mounts the `data/` folder read-only and creates two persistent Docker
+5. **Remove everything** when you're done:
+
+   ```bash
+   docker compose down
+   ```
+
+Compose mounts the `data/` folder read-only and creates persistent Docker
 volumes (`db-data` and `vectorstore-data`) to store the SQLite database and the
-FAQ vector store. These volumes ensure your data is saved between runs.
+FAQ vector store. Because these volumes are mounted, the static data does not
+need to be copied on subsequent builds.
+
+### Inspecting Docker Resources
+
+- **Volumes**
+
+  ```bash
+  docker volume ls
+  docker volume inspect ecommerce_data
+  ```
+
+- **Networks**
+
+  ```bash
+  docker network ls
+  docker network inspect <network_name>
+  ```
+
+- **Services and containers**
+
+  ```bash
+  docker compose ps
+  ```
+
+- **Images**
+
+  ```bash
+  docker images
+  ```
 
 ---
 
