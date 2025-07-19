@@ -12,6 +12,11 @@ from config import (
 from openai import OpenAI
 from transformers import pipeline
 from huggingface_hub import login
+from observability import (
+    get_langfuse,
+    current_trace_id,
+    register_prompt,
+)
 
 def openai_chat_completion(
     messages,
@@ -27,6 +32,17 @@ def openai_chat_completion(
     if not OPENAI_API_KEY:
         raise RuntimeError("OPENAI_API_KEY not set.")
 
+    lf = get_langfuse()
+    generation = None
+    if lf:
+        generation = lf.generation(
+            trace_id=current_trace_id(),
+            name="openai_chat_completion",
+            input={"messages": messages},
+            model=model,
+            metadata={"temperature": temperature, "max_tokens": max_tokens},
+        )
+
     client = OpenAI(api_key=OPENAI_API_KEY)
     response = client.chat.completions.create(
         model=model,
@@ -34,7 +50,10 @@ def openai_chat_completion(
         temperature=temperature,
         max_tokens=max_tokens,
     )
-    return response.choices[0].message.content.strip()
+    output_text = response.choices[0].message.content.strip()
+    if generation:
+        generation.end(output=output_text)
+    return output_text
 
 # ---- Intent Classifier ----
 
@@ -43,11 +62,16 @@ _hf_classifier = None
 def _openai_classify_intent(query: str) -> str:
     prompt = [
         {"role": "system", "content": "You are a helpful intent classifier."},
-        {"role": "user", "content":
-            "Classify the user's query into one of these intents: faq, order_status, refund_status, review, order_details. "
-            "Respond with only the intent word, nothing else. "
-            f"Here is the query: {query}"}
+        {
+            "role": "user",
+            "content": (
+                "Classify the user's query into one of these intents: faq, order_status, refund_status, review, order_details. "
+                "Respond with only the intent word, nothing else. "
+                f"Here is the query: {query}"
+            ),
+        },
     ]
+    register_prompt("intent_classifier_prompt", str(prompt))
     resp = openai_chat_completion(prompt)
     return resp.strip().lower()
 
@@ -108,6 +132,7 @@ def rephrase_text(text: str) -> str:
             "content": f"Please rephrase the following text:\n{text}",
         },
     ]
+    register_prompt("rephrase_prompt", str(prompt))
     return openai_chat_completion(prompt)
 
 # ---- General-purpose Chat ----
@@ -117,6 +142,7 @@ def chat_completion(query, **kwargs):
     Generic chat completion utility.
     """
     messages = [{"role": "user", "content": query}]
+    register_prompt("chat_prompt", str(messages))
     return openai_chat_completion(messages, **kwargs)
 
 # ---- Quick test ----

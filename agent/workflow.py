@@ -12,6 +12,14 @@ from tools.business_tools import (
 )
 from db.db_setup import get_session
 from config import DATABASE_URL, LOG_FILE
+from observability import (
+    start_trace,
+    end_trace,
+    get_langfuse,
+    log_metric,
+    log_score,
+    current_trace_id,
+)
 from sqlalchemy import create_engine, text
 import datetime
 
@@ -124,10 +132,20 @@ def ask_agent(user_query: str) -> str:
     Single entrypoint for conversational agent.
     Returns agent's answer for a user query.
     """
+    trace = start_trace("ask_agent", {"input": user_query})
     state = {"input": user_query}
-    # Execute the workflow graph and return the final answer
     result = graph.invoke(state)
-    return result["output"]
+    answer = result["output"]
+    lf = get_langfuse()
+    if lf and trace:
+        lf.span(trace_id=trace.id, name="classification", output=state.get("classification"))
+        lf.span(trace_id=trace.id, name="tool_output", output=state.get("tool_output"))
+        lf.span(trace_id=trace.id, name="final_answer", output=answer)
+    if state.get("classification"):
+        log_metric("classification", 1, trace_id=current_trace_id())
+    log_score("answer_length", len(answer), trace_id=current_trace_id())
+    end_trace()
+    return answer
 
 # Example usage for CLI
 if __name__ == "__main__":
