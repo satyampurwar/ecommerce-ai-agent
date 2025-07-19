@@ -18,6 +18,20 @@ from observability import (
     register_prompt,
 )
 
+
+def _start_generation(lf, **kwargs):
+    """Compatibility helper for starting a generation/span."""
+    if not lf:
+        return None
+    try:
+        return lf.generation(**kwargs)
+    except AttributeError:
+        # Fallback for newer SDK where generation may be replaced by span
+        try:
+            return lf.span(**kwargs)
+        except Exception:
+            return None
+
 def openai_chat_completion(
     messages,
     model: str = OPENAI_MODEL_NAME,
@@ -33,15 +47,14 @@ def openai_chat_completion(
         raise RuntimeError("OPENAI_API_KEY not set.")
 
     lf = get_langfuse()
-    generation = None
-    if lf:
-        generation = lf.generation(
-            trace_id=current_trace_id(),
-            name="openai_chat_completion",
-            input={"messages": messages},
-            model=model,
-            metadata={"temperature": temperature, "max_tokens": max_tokens},
-        )
+    generation = _start_generation(
+        lf,
+        trace_id=current_trace_id(),
+        name="openai_chat_completion",
+        input={"messages": messages},
+        model=model,
+        metadata={"temperature": temperature, "max_tokens": max_tokens},
+    )
 
     client = OpenAI(api_key=OPENAI_API_KEY)
     response = client.chat.completions.create(
@@ -52,7 +65,10 @@ def openai_chat_completion(
     )
     output_text = response.choices[0].message.content.strip()
     if generation:
-        generation.end(output=output_text)
+        try:
+            generation.end(output=output_text)
+        except Exception:
+            pass
     return output_text
 
 # ---- Intent Classifier ----
