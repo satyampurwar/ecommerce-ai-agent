@@ -50,7 +50,7 @@ RUN mkdir -p /data /database /vectorstore
 # - Once the data is copied and mounted as a volume, you can safely remove or comment out this step
 #   in subsequent builds to avoid redundant copying.
 # - The container will then use the persisted data from the mounted volume.
-COPY data /data
+# COPY data /data
 
 # 7. Set environment variables so the app writes the
 # database and vector store to the mounted volumes.
