@@ -27,6 +27,9 @@ services:
 
 volumes:
   ecommerce_data:  # Defines a named volume for persistent storage of data files.
+    external: true
   ecommerce_database:  # Defines a named volume for persistent storage of the database.
+    external: true
   ecommerce_vectorstore:  # Defines a named volume for persistent storage of the vector store.
+    external: true
 # These volumes are created automatically by Docker and can be managed using Docker commands.
