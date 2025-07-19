@@ -238,11 +238,6 @@ everything inside containers. Follow these steps:
    docker compose down
    ```
 
-Compose mounts the `data/` folder read-only and creates persistent Docker
-volumes (`db-data` and `vectorstore-data`) to store the SQLite database and the
-FAQ vector store. Because these volumes are mounted, the static data does not
-need to be copied on subsequent builds.
-
 ### Inspecting Docker Resources
 
 - **Volumes**
