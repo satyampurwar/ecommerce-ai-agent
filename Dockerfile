@@ -42,7 +42,7 @@ COPY agent /app/agent
 # 5. Create directories that will be mapped to Docker
 # volumes for persistent storage of the datat, SQLite database
 # and the FAQ vector store.
-RUN mkdir -p /data /database /vectorstore
+RUN mkdir -p /data /database /vectorstore /logs
 
 # 6. Copy static data into the container for the first build.
 # - This step ensures that the initial data is available inside the container.
@@ -57,6 +57,7 @@ COPY data /data
 ENV DATA_FOLDER=/data
 ENV DATABASE_FILE=/database/olist.db
 ENV VECTOR_DB_DIR=/vectorstore
+ENV LOG_FILE=/logs/agent_interactions.log
 
 # 8. Expose the port used by the Gradio UI so it is
 # reachable from the host machine.

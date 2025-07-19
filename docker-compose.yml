@@ -5,9 +5,6 @@
 # image, provide environment variables, and manage
 # persistent volumes.
 
-version: "3.8"  # Specifies the Compose file format version.
-# Version 3.8 is widely used and supports modern features like GPU access.
-
 services:
   app:  # Defines the main service (container) for the application.
     build: .            # Build the Docker image using the Dockerfile in the current directory.
@@ -24,6 +21,8 @@ services:
       # This is useful for storing the SQLite database file persistently.
       - ecommerce_vectorstore:/vectorstore  # Maps the named volume 'ecommerce_vectorstore' to the '/vectorstore' directory in the container.
       # This ensures that the vector store data is not lost when the container is stopped or removed.
+      - ecommerce_logs:/logs  # Maps the named volume 'ecommerce_logs' to the '/logs' directory in the container.
+      # This ensures that the chats are not lost when the container is stopped or removed.
 
 volumes:
   ecommerce_data:  # Defines a named volume for persistent storage of data files.
@@ -31,5 +30,7 @@ volumes:
   ecommerce_database:  # Defines a named volume for persistent storage of the database.
     external: true
   ecommerce_vectorstore:  # Defines a named volume for persistent storage of the vector store.
+    external: true
+  ecommerce_logs:  # Defines a named volume for persistent storage of the vector store.
     external: true
 # These volumes are created automatically by Docker and can be managed using Docker commands.
