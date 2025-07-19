@@ -26,4 +26,6 @@ demo = gr.ChatInterface(
 )
 
 if __name__ == "__main__":
-    demo.launch()
+    # Bind to 0.0.0.0 so the Gradio server is reachable from outside the
+    # container when running under Docker or Docker Compose.
+    demo.launch(server_name="0.0.0.0", server_port=7860)
