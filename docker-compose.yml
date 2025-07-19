@@ -5,27 +5,28 @@
 # image, provide environment variables, and manage
 # persistent volumes.
 
-version: "3.8"  # Compose file format version
+version: "3.8"  # Specifies the Compose file format version.
+# Version 3.8 is widely used and supports modern features like GPU access.
 
 services:
-  app:
-    build: .            # Build the Dockerfile in the current directory
+  app:  # Defines the main service (container) for the application.
+    build: .            # Build the Docker image using the Dockerfile in the current directory.
     ports:
-      - "7860:7860"     # Map host port 7860 to the container
+      - "7860:7860"     # Maps port 7860 on the host machine to port 7860 inside the container.
+      # This allows you to access the Gradio web app at http://localhost:7860.
     env_file:
-      - .env            # Load API keys and other settings from .env
+      - .env            # Loads environment variables from the .env file.
+      # The .env file typically contains sensitive information like API keys or configuration settings.
     volumes:
-      # Mount the CSV data folder as read-only so the
-      # database can be created from these files
-      - ./data:/app/data:ro
-      # Named volume for the SQLite DB so data persists
-      - db-data:/db
-      # Named volume for the FAQ vector store persistence
-      - vectorstore-data:/vectorstore
+      - ecommerce_data:/data          # Maps the named volume 'ecommerce_data' to the '/data' directory in the container.
+      # This ensures that any data written to '/data' inside the container persists across restarts.
+      - ecommerce_database:/database  # Maps the named volume 'ecommerce_database' to the '/database' directory in the container.
+      # This is useful for storing the SQLite database file persistently.
+      - ecommerce_vectorstore:/vectorstore  # Maps the named volume 'ecommerce_vectorstore' to the '/vectorstore' directory in the container.
+      # This ensures that the vector store data is not lost when the container is stopped or removed.
 
 volumes:
-  # Named volumes are stored by Docker outside the
-  # container filesystem. They survive container
-  # recreation and ensure data persistence.
-  db-data:
-  vectorstore-data:
+  ecommerce_data:  # Defines a named volume for persistent storage of data files.
+  ecommerce_database:  # Defines a named volume for persistent storage of the database.
+  ecommerce_vectorstore:  # Defines a named volume for persistent storage of the vector store.
+# These volumes are created automatically by Docker and can be managed using Docker commands.

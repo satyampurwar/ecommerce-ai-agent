@@ -11,12 +11,7 @@ FROM python:3.10-slim
 # All following commands will run inside /app.
 WORKDIR /app
 
-# 3. Copy the Conda environment file so we know the
-# required Python packages. We use pip here for
-# simplicity when building the image.
-COPY deploy/conda/env.yml /tmp/env.yml
-
-# 4. Install Python dependencies with pip. The packages
+# 3. Install Python dependencies with pip. The packages
 # mirror those listed in deploy/conda/env.yml.
 RUN pip install --no-cache-dir \
     pandas>=2.2.2 \
@@ -34,22 +29,38 @@ RUN pip install --no-cache-dir \
     sentence-transformers>=0.6.0 \
     gradio>=4.24.0
 
-# 5. Copy the rest of the application code into the image.
-COPY . /app
+# 4. Copy the rest of the application code into the image.
+COPY config.py /app/
+COPY main.py /app/
+COPY gradio_app.py /app/
+COPY db /app/db
+COPY vectorstore /app/vectorstore
+COPY tools /app/tools
+COPY llm /app/llm
+COPY agent /app/agent
 
-# 6. Create directories that will be mapped to Docker
-# volumes for persistent storage of the SQLite database
+# 5. Create directories that will be mapped to Docker
+# volumes for persistent storage of the datat, SQLite database
 # and the FAQ vector store.
-RUN mkdir -p /db /vectorstore
+RUN mkdir -p /data /database /vectorstore
+
+# 6. Copy static data into the container for the first build.
+# - This step ensures that the initial data is available inside the container.
+# - The data will be persisted in the "ecommerce_data" volume as defined in docker-compose.yml.
+# - Once the data is copied and mounted as a volume, you can safely remove or comment out this step
+#   in subsequent builds to avoid redundant copying.
+# - The container will then use the persisted data from the mounted volume.
+COPY data /data
 
 # 7. Set environment variables so the app writes the
 # database and vector store to the mounted volumes.
-ENV DATABASE_FILE=/db/olist.db
+ENV DATA_FOLDER=/data
+ENV DATABASE_FILE=/database/olist.db
 ENV VECTOR_DB_DIR=/vectorstore
 
 # 8. Expose the port used by the Gradio UI so it is
 # reachable from the host machine.
 EXPOSE 7860
 
-# 9. When the container starts, launch the Gradio web app.
+# 8. When the container starts, launch the Gradio web app.
 CMD ["python", "gradio_app.py"]
