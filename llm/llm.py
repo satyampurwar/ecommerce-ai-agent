@@ -8,8 +8,29 @@ from config import (
     INTENT_CLASSIFIER,
     HF_INTENT_MODEL,
     HUGGINGFACE_API_TOKEN,
+    LANGFUSE_PUBLIC_KEY,
+    LANGFUSE_SECRET_KEY,
+    LANGFUSE_HOST,
+    ENABLE_LANGFUSE,
 )
 from openai import OpenAI
+try:
+    from langfuse import Langfuse
+except Exception:  # pragma: no cover - optional dependency may not be installed
+    Langfuse = None
+
+_langfuse = None
+if (
+    Langfuse is not None
+    and ENABLE_LANGFUSE
+    and LANGFUSE_PUBLIC_KEY
+    and LANGFUSE_SECRET_KEY
+):
+    _langfuse = Langfuse(
+        public_key=LANGFUSE_PUBLIC_KEY,
+        secret_key=LANGFUSE_SECRET_KEY,
+        host=LANGFUSE_HOST,
+    )
 from transformers import pipeline
 from huggingface_hub import login
 
@@ -28,13 +49,37 @@ def openai_chat_completion(
         raise RuntimeError("OPENAI_API_KEY not set.")
 
     client = OpenAI(api_key=OPENAI_API_KEY)
-    response = client.chat.completions.create(
-        model=model,
-        messages=messages,
-        temperature=temperature,
-        max_tokens=max_tokens,
-    )
-    return response.choices[0].message.content.strip()
+    trace = None
+    span = None
+    if _langfuse is not None:
+        if hasattr(_langfuse, "trace"):
+            trace = _langfuse.trace(name="openai_chat_completion")
+        elif hasattr(_langfuse, "get_trace"):
+            trace = _langfuse.get_trace(name="openai_chat_completion")
+        if trace is not None and hasattr(trace, "span"):
+            span = trace.span(
+                name=model,
+                input={"messages": messages},
+            )
+    try:
+        response = client.chat.completions.create(
+            model=model,
+            messages=messages,
+            temperature=temperature,
+            max_tokens=max_tokens,
+        )
+        text = response.choices[0].message.content.strip()
+        if span is not None:
+            span.end(output=text)
+        if trace is not None:
+            trace.end()
+        return text
+    except Exception as e:
+        if span is not None:
+            span.end(error=str(e))
+        if trace is not None:
+            trace.end()
+        raise
 
 # ---- Intent Classifier ----
 

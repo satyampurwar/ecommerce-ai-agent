@@ -22,6 +22,12 @@ DATABASE_URL = f"sqlite:///{DATABASE_FILE}"
 # === External API Keys ===
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
+# === Langfuse Tracing ===
+LANGFUSE_PUBLIC_KEY = os.getenv("LANGFUSE_PUBLIC_KEY")
+LANGFUSE_SECRET_KEY = os.getenv("LANGFUSE_SECRET_KEY")
+LANGFUSE_HOST = os.getenv("LANGFUSE_HOST")
+ENABLE_LANGFUSE = bool(os.getenv("ENABLE_LANGFUSE", "").lower() in {"1", "true", "yes"})
+
 # === LLM Settings ===
 OPENAI_MODEL_NAME = os.getenv("OPENAI_MODEL_NAME", "gpt-4o-mini")
 OPENAI_TEMPERATURE = float(os.getenv("OPENAI_TEMPERATURE", "0.2"))

@@ -27,7 +27,8 @@ RUN pip install --no-cache-dir \
     python-dotenv>=1.0.1 \
     typing-extensions>=4.11.0 \
     sentence-transformers>=0.6.0 \
-    gradio>=4.24.0
+    gradio>=4.24.0 \
+    langfuse>=2.17.0
 
 # 4. Copy the rest of the application code into the image.
 COPY config.py /app/
