@@ -103,6 +103,10 @@ OPENAI_API_KEY=sk-xxxxxx
 # INTENT_CLASSIFIER=huggingface
 # HUGGINGFACE_API_TOKEN=hf_xxxx
 # HF_INTENT_MODEL=facebook/bart-large-mnli
+# Optional: enable Langfuse observability
+# LANGFUSE_PUBLIC_KEY=pk_xxxx
+# LANGFUSE_SECRET_KEY=sk_xxxx
+# LANGFUSE_HOST=https://app.langfuse.com
 ```
 
 ---
@@ -278,6 +282,16 @@ everything inside containers. Follow these steps:
   ```bash
   docker images
   ```
+
+---
+
+## Langfuse Observability
+
+The project integrates [Langfuse](https://www.langfuse.com/) for tracing,
+prompt management, metrics and evals. Provide your Langfuse keys in `.env` and
+the agent will record each query, LLM call and registered prompt. Custom metrics
+and evaluation scores are also sent so you can monitor performance over time.
+Observability is optional; if keys are missing the agent runs without tracing.
 
 ---
 
