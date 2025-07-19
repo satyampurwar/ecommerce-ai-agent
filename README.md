@@ -197,6 +197,7 @@ The project includes a `Dockerfile` and `docker-compose.yml` so you can run
 everything inside containers. Follow these steps:
 
 1. **Create a `.env` file** with your OpenAI (and optional HuggingFace) keys.
+
 2. **Build the image** (only required the first time):
 
    ```bash
@@ -207,7 +208,19 @@ everything inside containers. Follow these steps:
    `Dockerfile`). Once that data lives in the volume you can comment out that
    step for subsequent builds.
 
-3. **Start the application** and open <http://localhost:7860> in your browser:
+3. **Create the external volumes** (only required once):
+
+   The volumes defined in `docker-compose.yml` have `external: true`, so Docker
+   will not create them automatically. Ensure they exist before running
+   `docker compose up`:
+
+   ```bash
+   docker volume create ecommerce_data
+   docker volume create ecommerce_database
+   docker volume create ecommerce_vectorstore
+   docker volume create ecommerce_logs
+
+4. **Start the application** and open <http://localhost:7860> in your browser:
 
    ```bash
    docker compose up
@@ -225,14 +238,14 @@ everything inside containers. Follow these steps:
      docker compose run --entrypoint bash -it app
      ```
 
-4. **Stop or restart the containers**:
+5. **Stop or restart the containers**:
 
    ```bash
    docker compose stop     # stop
    docker compose restart  # restart
    ```
 
-5. **Remove everything** when you're done:
+6. **Remove everything** when you're done:
 
    ```bash
    docker compose down
