@@ -26,7 +26,10 @@ def start_trace(name: str, input: Any | None = None):
     lf = get_langfuse()
     if not lf:
         return None
-    trace = lf.trace(name=name, input=input)
+    try:
+        trace = lf.trace(name=name, input=input)
+    except Exception:
+        trace = None
     _current_trace.set(trace)
     return trace
 
@@ -34,7 +37,10 @@ def end_trace() -> None:
     """End and clear the current trace."""
     trace = _current_trace.get()
     if trace is not None:
-        trace.end()
+        try:
+            trace.end()
+        except Exception:
+            pass
     _current_trace.set(None)
 
 def current_trace_id() -> str | None:

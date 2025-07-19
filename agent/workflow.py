@@ -138,9 +138,12 @@ def ask_agent(user_query: str) -> str:
     answer = result["output"]
     lf = get_langfuse()
     if lf and trace:
-        lf.span(trace_id=trace.id, name="classification", output=state.get("classification"))
-        lf.span(trace_id=trace.id, name="tool_output", output=state.get("tool_output"))
-        lf.span(trace_id=trace.id, name="final_answer", output=answer)
+        try:
+            lf.span(trace_id=trace.id, name="classification", output=state.get("classification"))
+            lf.span(trace_id=trace.id, name="tool_output", output=state.get("tool_output"))
+            lf.span(trace_id=trace.id, name="final_answer", output=answer)
+        except Exception:
+            pass
     if state.get("classification"):
         log_metric("classification", 1, trace_id=current_trace_id())
     log_score("answer_length", len(answer), trace_id=current_trace_id())

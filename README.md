@@ -287,7 +287,7 @@ everything inside containers. Follow these steps:
 
 ## Langfuse Observability
 
-The project integrates [Langfuse](https://www.langfuse.com/) for tracing,
+The project integrates [Langfuse](https://www.langfuse.com/) (tested with the Python SDK v3.2.1) for tracing,
 prompt management, metrics and evals. Provide your Langfuse keys in `.env` and
 the agent will record each query, LLM call and registered prompt. Custom metrics
 and evaluation scores are also sent so you can monitor performance over time.
