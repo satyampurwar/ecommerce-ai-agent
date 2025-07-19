@@ -3,13 +3,15 @@
 import os
 from dotenv import load_dotenv
 
-# Load variables from .env at project root
-load_dotenv()
-
 # === Paths & Directories ===
 # Resolve paths relative to this file so scripts can be executed from any
 # working directory.
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Load variables from .env located next to this file. This ensures environment
+# variables are loaded correctly even when scripts are executed from other
+# directories (e.g. when launching the Gradio app).
+load_dotenv(os.path.join(BASE_DIR, ".env"))
 
 DATA_FOLDER = os.getenv("DATA_FOLDER", os.path.join(BASE_DIR, "data"))
 VECTOR_DB_DIR = os.getenv("VECTOR_DB_DIR", os.path.join(BASE_DIR, "faq_vectorstore"))
