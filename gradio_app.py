@@ -1,4 +1,6 @@
 """Minimal Gradio UI for chatting with the agent."""
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning, module="gradio")
 
 import gradio as gr
 from agent.workflow import ask_agent
@@ -12,7 +14,7 @@ def ensure_setup():
 
 ensure_setup()
 
-def gradio_ask(message: str, history: list[tuple[str, str]]) -> str:
+def gradio_ask(message: str) -> str:
     """Wrapper for :func:`ask_agent` used by ``gradio.ChatInterface``."""
     return ask_agent(message)
 
