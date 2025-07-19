@@ -77,3 +77,6 @@ def register_prompt(name: str, prompt: str) -> None:
             lf.prompt(name=name, prompt=prompt)
         except Exception:
             pass
+
+if __name__ == "__main__":
+    get_langfuse() # Initialize Langfuse client if keys are set 
