@@ -14,8 +14,8 @@ def ensure_setup():
 
 ensure_setup()
 
-def gradio_ask(message: str) -> str:
-    """Wrapper for :func:`ask_agent` used by ``gradio.ChatInterface``."""
+def gradio_ask(message: str, history: list[tuple[str, str]]) -> str:
+    """Wrapper for gradio ChatInterface."""
     return ask_agent(message)
 
 # Instantiate the basic chat interface
