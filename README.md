@@ -18,6 +18,7 @@
 * **Integrated SQL database** from Olist public dataset
 * **Vector search with Chroma** (state-of-the-art)
 * **Production-ready modular Python codebase**
+* **Tracing with Langfuse** for monitoring all LLM calls
 
 ---
 
@@ -103,6 +104,12 @@ OPENAI_API_KEY=sk-xxxxxx
 # INTENT_CLASSIFIER=huggingface
 # HUGGINGFACE_API_TOKEN=hf_xxxx
 # HF_INTENT_MODEL=facebook/bart-large-mnli
+
+# Optional: enable Langfuse tracing
+# ENABLE_LANGFUSE=true
+# LANGFUSE_PUBLIC_KEY=pk_xxxxx
+# LANGFUSE_SECRET_KEY=sk_xxxxx
+# LANGFUSE_HOST=https://cloud.langfuse.com
 ```
 
 ---
