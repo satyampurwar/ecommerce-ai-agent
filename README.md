@@ -204,24 +204,27 @@ flowchart TD
     LLM[LLM API]
     Logs[[agent_interactions.log]]
 
-    U -->|query| CLI
-    U -->|query| Web
-    CLI --> Workflow
-    Web --> Workflow
-    Workflow --> Perception
-    Perception --> LLM
-    LLM --> Perception
-    Perception --> ToolNode
-    ToolNode --> Tools
-    Tools --> DB
-    Tools --> Vector
-    ToolNode --> Answer
-    Answer --> LLM
-    LLM --> Answer
-    Answer --> Learning
-    Learning --> Logs
-    Answer -->|response| CLI
-    Answer -->|response| Web
+    U -->|1 query| CLI
+    U -->|2 query| Web
+    CLI -->|3| Workflow
+    Web -->|4| Workflow
+    Workflow -->|5| Perception
+    Perception -->|6| LLM
+    LLM -->|7| Perception
+    Perception -->|8| ToolNode
+    ToolNode -->|9| Tools
+    Tools -->|10| DB
+    DB -->|11| Tools
+    Tools -->|12| Vector
+    Vector -->|13| Tools
+    Tools -->|14| ToolNode
+    ToolNode -->|15| Answer
+    Answer -->|16| LLM
+    LLM -->|17| Answer
+    Answer -->|18| Learning
+    Learning -->|19| Logs
+    Answer -->|20 response| CLI
+    Answer -->|21 response| Web
 ```
 
 ---
