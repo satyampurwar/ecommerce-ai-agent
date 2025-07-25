@@ -122,20 +122,25 @@ def classify_intent(query: str) -> str:
 
 # ---- Rephrase Utility ----
 
-def rephrase_text(text: str) -> str:
-    """Use OpenAI to make text sound friendly and natural.
+def rephrase_text(text: str, history: list["AgentTurn"] | None = None) -> str:
+    """Use OpenAI to make text sound friendly and natural with context.
 
     Parameters
     ----------
     text : str
         Text to rephrase.
+    history : list[AgentTurn], optional
+        Recent conversation turns to provide context.
 
     Returns
     -------
     str
         Rephrased version of ``text``.
     """
-    prompt = [
+
+    from agent.state import AgentTurn  # Imported here to avoid circular import
+
+    messages = [
         {
             "role": "system",
             "content": (
@@ -143,12 +148,18 @@ def rephrase_text(text: str) -> str:
                 "and friendly for end users."
             ),
         },
-        {
-            "role": "user",
-            "content": f"Please rephrase the following text:\n{text}",
-        },
     ]
-    return openai_chat_completion(prompt)
+
+    if history:
+        for turn in history:
+            messages.append({"role": "user", "content": turn.user})
+            messages.append({"role": "assistant", "content": turn.agent})
+
+    messages.append(
+        {"role": "user", "content": f"Please rephrase the following text:\n{text}"}
+    )
+
+    return openai_chat_completion(messages)
 
 # ---- General-purpose Chat ----
 
