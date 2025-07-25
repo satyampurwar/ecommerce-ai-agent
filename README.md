@@ -210,12 +210,14 @@ flowchart TD
     Web --> Workflow
     Workflow --> Perception
     Perception --> LLM
+    LLM --> Perception
     Perception --> ToolNode
     ToolNode --> Tools
     Tools --> DB
     Tools --> Vector
     ToolNode --> Answer
     Answer --> LLM
+    LLM --> Answer
     Answer --> Learning
     Learning --> Logs
     Answer -->|response| CLI
