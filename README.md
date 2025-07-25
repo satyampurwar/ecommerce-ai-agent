@@ -193,10 +193,10 @@ flowchart TD
     U[User]
     Web[Gradio Web App]
     Workflow[LangGraph Workflow]
-    Perception["Perception Node<br/>(intent classification)"]
+    Perception["Perception Node\n(intent classification)"]
     ToolNode["Tool Node"]
-    Answer["Answer Node<br/>(rephrase)"]
-    Learning["Learning Node<br/>(logging)"]
+    Answer["Answer Node\n(rephrase)"]
+    Learning["Learning Node\n(logging)"]
     Tools["Business Tools"]
     DB[(SQLite DB)]
     Vector["Chroma Vector Store"]
@@ -211,7 +211,7 @@ flowchart TD
     Perception -->| "2.2" | ToolNode
     ToolNode -->| "Internal" | Tools
     Tools -->| "Querying Relational Database" | DB
-    DB -->| "Returning Results" | Tools
+    DB -->| "Returning Data" | Tools
     Tools -->| "Searching Vector Database" | Vector
     Vector -->| "Returning Chunks" | Tools
     Tools -->| "Internal" | ToolNode
