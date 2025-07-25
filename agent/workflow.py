@@ -2,7 +2,7 @@
 
 from langgraph.graph import StateGraph
 from langgraph.checkpoint.memory import InMemorySaver
-from agent.state import AgentState
+from agent.state import AgentState, AgentTurn
 from llm.llm import classify_intent, rephrase_text
 from tools.business_tools import (
     search_faq,
@@ -101,6 +101,7 @@ def tool_node(state: AgentState) -> AgentState:
     finally:
         # Always close the DB session
         session.close()
+    # Store the result on the state so ``answer_node`` can rephrase it next
     state.tool_output = output
     return state
 
@@ -117,9 +118,13 @@ def answer_node(state: AgentState) -> AgentState:
     AgentState
         Updated state with ``output`` filled.
     """
-    # Take the raw tool output and rephrase it for a nicer user experience
-    answer = state.tool_output or ""
-    rephrased = rephrase_text(answer)
+    # Take the raw tool output from ``tool_node`` and rephrase it using
+    # conversation history. The history helps produce a natural follow-up.
+    raw_tool_output = state.tool_output or ""
+    history_with_current = state.history + [
+        AgentTurn(user=state.input, agent=raw_tool_output)
+    ]
+    rephrased = rephrase_text(raw_tool_output, history=history_with_current)
     state.output = rephrased
     return state
 

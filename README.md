@@ -128,6 +128,8 @@ AI: [semantic FAQ answer]
 You: Check order status for ID 000229ec398224ef6ca0657da4fc703e
 AI: Order 000229ec398224ef6ca0657da4fc703e status: delivered
 ```
+The agent now uses the last few conversation turns when rephrasing answers,
+so follow-up questions sound more natural.
 
 ### 5. Launch the Web Chat (Gradio)
 
