@@ -278,6 +278,12 @@ Edit `config.py` to set:
 * Add new intent types to the agent workflow
 * Swap out the LLM in `llm/llm.py` for Claude, Gemini, etc.
 * Plug into a web API (Flask, FastAPI) with a few lines
+* Integrate tracing and evaluation with [LangSmith](https://smith.langchain.com/) or [Langfuse](https://langfuse.com/) for observability
+* Add user authorization layers (e.g., API keys, OAuth)
+* Implement user management to track individual accounts
+* Introduce session management to maintain conversation context across requests
+* Support multi-tenancy if serving multiple stores or clients
+* Apply security best practices (rate limiting, input validation, and safe LLM defaults)
 
 ---
 
