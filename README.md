@@ -179,7 +179,7 @@ graph LR
     end
     E["User Interface<br/>(CLI or Gradio Web UI)"] --> F["LangGraph Workflow"]
     F --> G["Intent Classifier<br/>LLM"]
-    F --> H["Tool Dispatcher"]
+    G --> H["Tool Dispatcher"]
     H --> B
     H --> D
     H --> I["Answer Rephrasing<br/>LLM"]
