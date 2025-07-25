@@ -46,6 +46,10 @@ ecommerce_agent/
 ├── config.py
 ├── requirements.txt
 ├── environment.yml
+├── gradio_app.py
+├── docker-compose.yml
+├── Dockerfile
+└── LICENSE
 ├── README.md
 ├── .env
 ├── agent_interactions.log
