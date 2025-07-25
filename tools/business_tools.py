@@ -16,9 +16,20 @@ import re
 
 # --- FAQ Tool ---
 
-def search_faq(query, k=1):
-    """
-    Semantic FAQ search using vectorstore.
+def search_faq(query: str, k: int = 1) -> str:
+    """Return the top FAQ entries that semantically match ``query``.
+
+    Parameters
+    ----------
+    query : str
+        Natural language question from the user.
+    k : int, optional
+        Number of results to return.
+
+    Returns
+    -------
+    str
+        Concatenated FAQ answers.
     """
     # Delegate to the vector store helper which performs semantic search
     return semantic_faq_search(query, k=k)
@@ -31,9 +42,20 @@ faq_tool = {
 
 # --- Order Status Tool ---
 
-def get_order_status(query, session: Session):
-    """
-    Retrieve order status from DB using order_id found in the query.
+def get_order_status(query: str, session: Session) -> str:
+    """Look up the status of an order.
+
+    Parameters
+    ----------
+    query : str
+        User text that should contain an order ID.
+    session : sqlalchemy.orm.Session
+        Active database session.
+
+    Returns
+    -------
+    str
+        Human readable status message.
     """
     # Extract an order_id (32 hex chars) from the query
     match = re.search(r'(\b[0-9a-f]{32,}\b)', query)
@@ -57,9 +79,20 @@ order_status_tool = {
 
 # --- Refund Status Tool ---
 
-def get_refund_status(query, session: Session):
-    """
-    Check refund/payment info for an order.
+def get_refund_status(query: str, session: Session) -> str:
+    """Return payment/refund information for an order.
+
+    Parameters
+    ----------
+    query : str
+        Text containing the order ID.
+    session : sqlalchemy.orm.Session
+        Active database session.
+
+    Returns
+    -------
+    str
+        Refund status string.
     """
     # Extract order_id from the user query
     match = re.search(r'(\b[0-9a-f]{32,}\b)', query)
@@ -82,9 +115,20 @@ refund_status_tool = {
 
 # --- Review Tool ---
 
-def get_review(query, session: Session):
-    """
-    Retrieve review score/message for an order.
+def get_review(query: str, session: Session) -> str:
+    """Retrieve review score and message for an order.
+
+    Parameters
+    ----------
+    query : str
+        Text containing an order ID.
+    session : sqlalchemy.orm.Session
+        Active database session.
+
+    Returns
+    -------
+    str
+        Review details if available.
     """
     # Pull order_id out of the query text
     match = re.search(r'(\b[0-9a-f]{32,}\b)', query)
@@ -105,10 +149,20 @@ review_tool = {
 
 # --- Comprehensive Order Details Tool ---
 
-def get_order_details(query, session: Session):
-    """
-    Retrieve a detailed summary for an order including customer, items,
-    payments and reviews.
+def get_order_details(query: str, session: Session) -> str:
+    """Return a comprehensive summary for an order.
+
+    Parameters
+    ----------
+    query : str
+        Text containing an order ID.
+    session : sqlalchemy.orm.Session
+        Active database session.
+
+    Returns
+    -------
+    str
+        Multi-line summary describing the order.
     """
     # Look for the order ID so we know which order to summarise
     match = re.search(r'(\b[0-9a-f]{32,}\b)', query)

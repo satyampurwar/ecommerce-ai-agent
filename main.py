@@ -6,11 +6,8 @@ from sqlalchemy import create_engine, text
 import subprocess
 import os
 
-def initial_setup():
-    """
-    Performs all setup needed for the project (DB, vector store, etc).
-    Only runs on first launch or when files are missing.
-    """
+def initial_setup() -> None:
+    """Create the database and vector store on first run."""
     # Build the SQLite DB and vector store using helper modules.
     print("[SETUP] Performing initial setup ...")
     print("[SETUP] Creating and populating database ...")
@@ -20,13 +17,13 @@ def initial_setup():
     print("[SETUP] Initial setup complete.\n")
 
 def vectorstore_exists() -> bool:
-    """Return True if the FAQ vector store directory looks populated."""
+    """Return ``True`` if the FAQ vector store directory looks populated."""
     result = os.path.isdir(VECTOR_DB_DIR) and len(os.listdir(VECTOR_DB_DIR)) > 0
     print(f"[CHECK] Vectorstore exists: {result}")
     return result
 
 def db_has_orders() -> bool:
-    """Return True if the orders table exists and has rows."""
+    """Return ``True`` if the orders table exists and has rows."""
     # Ensure the SQLite file exists before querying
     if not os.path.exists(DATABASE_FILE):
         print(f"[CHECK] DB file {DATABASE_FILE} does not exist.")
@@ -42,11 +39,8 @@ def db_has_orders() -> bool:
         print(f"[CHECK] DB check failed or orders table is empty: {e}")
         return False
 
-def cli_loop():
-    """
-    Simple command-line chat loop for testing the agent.
-    Conversation state is kept in memory between turns.
-    """
+def cli_loop() -> None:
+    """Run an interactive command-line chat loop."""
     print("\nEcommerce AI Agent (type 'quit' or 'exit' to stop).")
     while True:
         # Prompt user for a query

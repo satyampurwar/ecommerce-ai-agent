@@ -287,6 +287,16 @@ Edit `config.py` to set:
 
 ---
 
+## Persisting Short-Term Memory
+
+The agent stores only a few recent conversation turns in memory. To retain
+context across restarts you can persist this state in an external store such as
+[Redis](https://redis.io/) or any relational database. Replace the in-memory
+checkpoint in `agent/workflow.py` with a persistent backend and save
+`AgentState` objects keyed by a session identifier.
+
+---
+
 ## Troubleshooting
 
 * Make sure all CSVs are in `data/` and `.env` contains your API key.

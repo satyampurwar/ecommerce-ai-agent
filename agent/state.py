@@ -8,14 +8,40 @@ from pydantic import BaseModel, Field
 
 
 class AgentTurn(BaseModel):
-    """Single user/agent exchange stored in history."""
+    """Container for a single question and answer pair.
+
+    Attributes
+    ----------
+    user : str
+        Text of the user question.
+    agent : str
+        Response text from the agent.
+    """
 
     user: str
     agent: str
 
 
 class AgentState(BaseModel):
-    """State object passed through the LangGraph workflow."""
+    """Mutable state used by the workflow.
+
+    Parameters
+    ----------
+    input : str
+        The latest user query.
+    classification : str, optional
+        Detected intent label.
+    tool_output : str, optional
+        Raw output from the selected tool.
+    output : str, optional
+        Final answer returned to the user.
+    history : list[AgentTurn]
+        Recent conversation turns.
+    intermediate_steps : list[dict], optional
+        Debug information from the workflow.
+    context : dict, optional
+        Extra values that tools may attach.
+    """
 
     input: str
     classification: Optional[str] = None
@@ -26,7 +52,17 @@ class AgentState(BaseModel):
     context: Optional[Dict[str, Any]] = None
 
     def add_turn(self, user: str, agent: str, limit: int = 3) -> None:
-        """Append a Q&A pair and trim history to the last ``limit`` turns."""
+        """Append a new conversation turn and optionally trim history.
+
+        Parameters
+        ----------
+        user : str
+            The user's message.
+        agent : str
+            The agent's response.
+        limit : int, optional
+            Number of turns of history to keep. ``0`` keeps everything.
+        """
 
         self.history.append(AgentTurn(user=user, agent=agent))
         if limit > 0:

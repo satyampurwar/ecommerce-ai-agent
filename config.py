@@ -60,7 +60,9 @@ CSV_TABLE_MAP = {
 LOG_FILE = os.getenv("LOG_FILE", "agent_interactions.log")
 
 # === Sanity checks (optional, production-safe) ===
-def sanity_check():
+def sanity_check() -> None:
+    """Validate required environment variables and data paths."""
+
     if not OPENAI_API_KEY:
         raise RuntimeError("OPENAI_API_KEY is not set in your environment (.env)")
     if not os.path.isdir(DATA_FOLDER):
