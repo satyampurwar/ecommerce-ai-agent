@@ -19,9 +19,23 @@ def openai_chat_completion(
     temperature: float = OPENAI_TEMPERATURE,
     max_tokens: int = OPENAI_MAX_TOKENS,
 ):
-    """
-    Calls OpenAI ChatCompletion API and returns the output text.
-    messages: List of dicts with 'role' and 'content'.
+    """Call OpenAI's chat completion API.
+
+    Parameters
+    ----------
+    messages : list[dict]
+        Sequence of ``{"role": str, "content": str}`` chat messages.
+    model : str, optional
+        Model name to use.
+    temperature : float, optional
+        Sampling temperature.
+    max_tokens : int, optional
+        Maximum tokens to generate.
+
+    Returns
+    -------
+    str
+        Content of the first completion choice.
     """
     # Basic wrapper around the OpenAI API
     if not OPENAI_API_KEY:
@@ -41,6 +55,8 @@ def openai_chat_completion(
 _hf_classifier = None
 
 def _openai_classify_intent(query: str) -> str:
+    """Classify intent using OpenAI."""
+
     prompt = [
         {"role": "system", "content": "You are a helpful intent classifier."},
         {"role": "user", "content":
@@ -53,6 +69,8 @@ def _openai_classify_intent(query: str) -> str:
 
 
 def _hf_classify_intent(query: str) -> str:
+    """Classify intent using a HuggingFace zero-shot model."""
+
     global _hf_classifier
     if _hf_classifier is None:
         if HUGGINGFACE_API_TOKEN:
@@ -74,7 +92,18 @@ def _hf_classify_intent(query: str) -> str:
 
 
 def classify_intent(query: str) -> str:
-    """Classify the intent of the user's query using the configured provider."""
+    """Public helper that selects the configured intent classifier.
+
+    Parameters
+    ----------
+    query : str
+        User input to classify.
+
+    Returns
+    -------
+    str
+        Intent label such as ``faq`` or ``order_status``.
+    """
     provider = INTENT_CLASSIFIER.lower()
     if provider == "huggingface":
         intent = _hf_classify_intent(query)
@@ -94,7 +123,18 @@ def classify_intent(query: str) -> str:
 # ---- Rephrase Utility ----
 
 def rephrase_text(text: str) -> str:
-    """Rephrase text to be clear and conversational using OpenAI."""
+    """Use OpenAI to make text sound friendly and natural.
+
+    Parameters
+    ----------
+    text : str
+        Text to rephrase.
+
+    Returns
+    -------
+    str
+        Rephrased version of ``text``.
+    """
     prompt = [
         {
             "role": "system",
@@ -113,8 +153,19 @@ def rephrase_text(text: str) -> str:
 # ---- General-purpose Chat ----
 
 def chat_completion(query, **kwargs):
-    """
-    Generic chat completion utility.
+    """Convenience wrapper around :func:`openai_chat_completion`.
+
+    Parameters
+    ----------
+    query : str
+        Prompt for the model.
+    **kwargs : Any
+        Additional arguments passed to :func:`openai_chat_completion`.
+
+    Returns
+    -------
+    str
+        Model response.
     """
     messages = [{"role": "user", "content": query}]
     return openai_chat_completion(messages, **kwargs)

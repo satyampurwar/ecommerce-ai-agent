@@ -6,6 +6,7 @@ from sqlalchemy import Column, String, Integer, Float, DateTime, ForeignKey, Sma
 Base = declarative_base()
 
 class OlistCustomersDataset(Base):
+    """ORM model for the ``olist_customers_dataset`` table."""
     __tablename__ = "olist_customers_dataset"
 
     customer_id = Column(String(50), primary_key=True, nullable=False)
@@ -19,6 +20,7 @@ class OlistCustomersDataset(Base):
 
 
 class OlistOrdersDataset(Base):
+    """ORM model for the ``olist_orders_dataset`` table."""
     __tablename__ = "olist_orders_dataset"
 
     order_id = Column(String(50), primary_key=True, nullable=False)
@@ -40,6 +42,7 @@ class OlistOrdersDataset(Base):
 
 
 class OlistOrderItemsDataset(Base):
+    """ORM model for line items belonging to an order."""
     __tablename__ = "olist_order_items_dataset"
 
     order_id = Column(
@@ -66,6 +69,7 @@ class OlistOrderItemsDataset(Base):
 
 
 class OlistOrderPaymentsDataset(Base):
+    """ORM model capturing payment information for an order."""
     __tablename__ = "olist_order_payments_dataset"
 
     order_id = Column(
@@ -84,6 +88,7 @@ class OlistOrderPaymentsDataset(Base):
 
 
 class OlistOrderReviewsDataset(Base):
+    """ORM model for customer reviews associated with an order."""
     __tablename__ = "olist_order_reviews_dataset"
 
     review_id = Column(String(50), primary_key=True, nullable=False)
@@ -101,6 +106,7 @@ class OlistOrderReviewsDataset(Base):
 
 
 class OlistProductsDataset(Base):
+    """ORM model describing individual products."""
     __tablename__ = "olist_products_dataset"
 
     product_id = Column(String(50), primary_key=True, nullable=False)
@@ -125,6 +131,7 @@ class OlistProductsDataset(Base):
 
 
 class OlistSellersDataset(Base):
+    """ORM model containing seller information."""
     __tablename__ = "olist_sellers_dataset"
 
     seller_id = Column(String(50), primary_key=True, nullable=False)
@@ -137,6 +144,7 @@ class OlistSellersDataset(Base):
 
 
 class OlistGeolocationDataset(Base):
+    """ORM model for geographic coordinates of zip codes."""
     __tablename__ = "olist_geolocation_dataset"
 
     geolocation_zip_code_prefix = Column(Integer, primary_key=True, nullable=False)
@@ -147,6 +155,7 @@ class OlistGeolocationDataset(Base):
 
 
 class ProductCategoryNameTranslation(Base):
+    """ORM model mapping product category names to English."""
     __tablename__ = "product_category_name_translation"
 
     product_category_name = Column(String(50), primary_key=True, nullable=False)

@@ -7,15 +7,15 @@ from agent.workflow import ask_agent
 from main import db_has_orders, vectorstore_exists, initial_setup
 
 
-def ensure_setup():
-    """Run the heavy setup steps if the DB or vector store are missing."""
+def ensure_setup() -> None:
+    """Run setup steps if the DB or vector store are missing."""
     if not (db_has_orders() and vectorstore_exists()):
         initial_setup()
 
 ensure_setup()
 
 def gradio_ask(message: str, history: list[tuple[str, str]]) -> str:
-    """Return the agent response, ignoring history (managed internally)."""
+    """Return the agent response for the given message."""
     return ask_agent(message)
 
 # Instantiate the basic chat interface

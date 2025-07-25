@@ -12,16 +12,31 @@ from config import (
 )
 
 class FAQVectorStore:
-    """
-    Handles setup, persistence, and semantic search for FAQ using Chroma and sentence-transformers.
-    """
+    """Wrapper around a Chroma vector store for FAQs."""
 
-    def __init__(self, 
-                 vector_db_dir=VECTOR_DB_DIR,
-                 embedding_model_name=EMBEDDING_MODEL_NAME,
-                 collection_name=COLLECTION_NAME,
-                 dataset_name=FAQ_DATASET_NAME,
-                 dataset_split=FAQ_DATASET_SPLIT):
+    def __init__(
+        self,
+        vector_db_dir: str = VECTOR_DB_DIR,
+        embedding_model_name: str = EMBEDDING_MODEL_NAME,
+        collection_name: str = COLLECTION_NAME,
+        dataset_name: str = FAQ_DATASET_NAME,
+        dataset_split: str = FAQ_DATASET_SPLIT,
+    ) -> None:
+        """Create or load the FAQ vector store.
+
+        Parameters
+        ----------
+        vector_db_dir : str, optional
+            Directory for Chroma persistence.
+        embedding_model_name : str, optional
+            HuggingFace model used for embeddings.
+        collection_name : str, optional
+            Name of the Chroma collection.
+        dataset_name : str, optional
+            HuggingFace dataset containing FAQs.
+        dataset_split : str, optional
+            Which split of the dataset to load.
+        """
         self.vector_db_dir = vector_db_dir
         self.embedding_model_name = embedding_model_name
         self.collection_name = collection_name
@@ -38,9 +53,7 @@ class FAQVectorStore:
         self._ensure_faqs_loaded()
 
     def _ensure_faqs_loaded(self):
-        """
-        Checks if the FAQ vector DB is already populated. If not, loads and embeds the dataset.
-        """
+        """Load FAQ data into the vector store if it is empty."""
         ids = self.vector_db.get().get('ids', [])
         if not ids:
             print("Loading FAQ dataset and populating vector store...")
@@ -53,20 +66,28 @@ class FAQVectorStore:
             # Already populated, nothing to do
             pass
 
-    def semantic_search(self, query, k=2):
-        """
-        Perform a semantic search on the FAQs.
-        Returns the k most relevant entries.
+    def semantic_search(self, query: str, k: int = 2) -> str:
+        """Search the FAQ vector store for relevant entries.
+
+        Parameters
+        ----------
+        query : str
+            Natural language question.
+        k : int, optional
+            Number of results to return.
+
+        Returns
+        -------
+        str
+            ``\n\n`` joined string of the retrieved FAQ chunks.
         """
         docs = self.vector_db.similarity_search(query, k=k)
         if not docs:
             return "No relevant FAQ found."
         return "\n\n".join([doc.page_content for doc in docs])
 
-    def add_faq(self, question, answer):
-        """
-        Adds a new FAQ to the vector store.
-        """
+    def add_faq(self, question: str, answer: str) -> None:
+        """Add a new FAQ entry to the vector store."""
         text = f"{question} {answer}"
         # Generate a numeric ID for the new entry
         new_id = str(max([int(i) for i in self.vector_db.get()['ids']] + [0]) + 1)
@@ -76,14 +97,27 @@ class FAQVectorStore:
 faq_vectorstore = None
 
 def get_faq_vectorstore() -> FAQVectorStore:
-    """Return a singleton instance of FAQVectorStore, creating it if needed."""
+    """Return a singleton instance of :class:`FAQVectorStore`."""
     global faq_vectorstore
     if faq_vectorstore is None:
         faq_vectorstore = FAQVectorStore()
     return faq_vectorstore
 
 def semantic_faq_search(query, k=2):
-    """Convenience wrapper for performing a FAQ semantic search."""
+    """Convenience wrapper for performing a FAQ semantic search.
+
+    Parameters
+    ----------
+    query : str
+        User question to search for.
+    k : int, optional
+        Number of FAQ entries to return.
+
+    Returns
+    -------
+    str
+        Combined text from the most similar FAQs.
+    """
     store = get_faq_vectorstore()
     return store.semantic_search(query, k=k)
 

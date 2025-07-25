@@ -20,10 +20,18 @@ from db.models import (
     ProductCategoryNameTranslation,
 )
 
-def create_db_and_tables(database_url=DATABASE_URL):
-    """
-    Create the SQLite database file and all tables using ORM models, if not already present.
-    Enables foreign-key enforcement for SQLite.
+def create_db_and_tables(database_url: str = DATABASE_URL):
+    """Create the SQLite database and all ORM tables if needed.
+
+    Parameters
+    ----------
+    database_url : str, optional
+        Connection string for the database.
+
+    Returns
+    -------
+    sqlalchemy.engine.Engine
+        Engine connected to the created database.
     """
     print(f"[DB_SETUP] Creating engine for DB at: {database_url}")
     engine = create_engine(database_url, connect_args={"check_same_thread": False})
@@ -37,9 +45,16 @@ def create_db_and_tables(database_url=DATABASE_URL):
     return engine
 
 def import_csv_to_db(engine, table_class, csv_path):
-    """
-    Import a CSV file to the database using the provided ORM table class.
-    Uses ORM bulk_save_objects for correct relationships.
+    """Load a CSV file into the given table.
+
+    Parameters
+    ----------
+    engine : sqlalchemy.engine.Engine
+        Database engine.
+    table_class : DeclarativeMeta
+        ORM model representing the table.
+    csv_path : str
+        Path to the CSV file.
     """
     print(f"[IMPORT] Attempting to import {csv_path} into table '{table_class.__tablename__}' ...")
 
@@ -132,11 +147,17 @@ def import_csv_to_db(engine, table_class, csv_path):
         session.close()
         print(f"[IMPORT] Session closed for table '{table_class.__tablename__}'.")
 
-def populate_database(engine, data_folder=DATA_FOLDER, table_map=CSV_TABLE_MAP):
-    """
-    Populates all ORM tables from CSVs in the data folder.
-    Only appends data; will not overwrite existing rows.
-    The insertion order is set to maintain referential integrity.
+def populate_database(engine, data_folder: str = DATA_FOLDER, table_map=CSV_TABLE_MAP):
+    """Populate all tables from CSV files.
+
+    Parameters
+    ----------
+    engine : sqlalchemy.engine.Engine
+        Database engine.
+    data_folder : str, optional
+        Directory containing CSV files.
+    table_map : dict, optional
+        Mapping from table key to CSV filename.
     """
     print("[POPULATE] Populating database with CSVs ...")
     print(f"[POPULATE] Using data folder: {data_folder}")
@@ -163,19 +184,38 @@ def populate_database(engine, data_folder=DATA_FOLDER, table_map=CSV_TABLE_MAP):
     print("[POPULATE] All CSV imports attempted.")
 
 def get_session(engine):
-    """Return a new SQLAlchemy ORM session for the given engine."""
+    """Return a new SQLAlchemy session bound to ``engine``.
+
+    Parameters
+    ----------
+    engine : sqlalchemy.engine.Engine
+        Engine to bind the session to.
+
+    Returns
+    -------
+    sqlalchemy.orm.Session
+        Configured session instance.
+    """
     Session = sessionmaker(bind=engine)
     return Session()
 
 
 def setup_database():
-    """Create tables and populate them from CSV files."""
+    """Create the database and load data from CSV files.
+
+    Returns
+    -------
+    sqlalchemy.engine.Engine
+        Engine connected to the populated database.
+    """
     engine = create_db_and_tables()
     populate_database(engine)
     return engine
 
 
 def main():
+    """Command-line entry point for manual execution."""
+
     print("[MAIN] Creating database and importing CSV files ...")
     setup_database()
     print("[MAIN] Database setup complete.")
