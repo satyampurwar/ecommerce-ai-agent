@@ -122,7 +122,11 @@ def classify_intent(query: str) -> str:
 
 # ---- Rephrase Utility ----
 
-def rephrase_text(text: str, history: list["AgentTurn"] | None = None) -> str:
+def rephrase_text(
+    text: str,
+    history: list["AgentTurn"] | None = None,
+    query: str | None = None,
+) -> str:
     """Use OpenAI to make text sound friendly and natural with context.
 
     Parameters
@@ -131,6 +135,8 @@ def rephrase_text(text: str, history: list["AgentTurn"] | None = None) -> str:
         Text to rephrase.
     history : list[AgentTurn], optional
         Recent conversation turns to provide context.
+    query : str, optional
+        The user's latest question for additional context.
 
     Returns
     -------
@@ -155,8 +161,14 @@ def rephrase_text(text: str, history: list["AgentTurn"] | None = None) -> str:
             messages.append({"role": "user", "content": turn.user})
             messages.append({"role": "assistant", "content": turn.agent})
 
+    if query:
+        messages.append({"role": "user", "content": f"User question: {query}"})
+
     messages.append(
-        {"role": "user", "content": f"Please rephrase the following text:\n{text}"}
+        {
+            "role": "user",
+            "content": f"Please rephrase the following text:\n{text}",
+        }
     )
 
     return openai_chat_completion(messages)

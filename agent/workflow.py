@@ -122,10 +122,13 @@ def answer_node(state: AgentState) -> AgentState:
     # Take the raw tool output from ``tool_node`` and rephrase it using
     # conversation history. The history helps produce a natural follow-up.
     raw_tool_output = state.tool_output or ""
+    query = state.input
     history_with_current = state.history + [
-        AgentTurn(user=state.input, agent=raw_tool_output)
+        AgentTurn(user=query, agent=raw_tool_output)
     ]
-    rephrased = rephrase_text(raw_tool_output, history=history_with_current)
+    rephrased = rephrase_text(
+        raw_tool_output, history=history_with_current, query=query
+    )
     state.output = rephrased
     return state
 
