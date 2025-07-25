@@ -118,6 +118,7 @@ def answer_node(state: AgentState) -> AgentState:
     AgentState
         Updated state with ``output`` filled.
     """
+
     # Take the raw tool output from ``tool_node`` and rephrase it using
     # conversation history. The history helps produce a natural follow-up.
     raw_tool_output = state.tool_output or ""
