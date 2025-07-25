@@ -117,6 +117,7 @@ def build_workflow() -> StateGraph:
 graph = build_workflow()
 
 _conversation_state: AgentState | None = None
+_THREAD_ID = "default"
 
 
 def ask_agent(user_query: str) -> str:
@@ -132,7 +133,9 @@ def ask_agent(user_query: str) -> str:
         _conversation_state.output = None
 
     # Execute the workflow and update state
-    _conversation_state = graph.invoke(_conversation_state)
+    _conversation_state = graph.invoke(
+        _conversation_state, config={"configurable": {"thread_id": _THREAD_ID}}
+    )
     assert _conversation_state is not None
     # Append to short-term history (keep last 3 turns)
     _conversation_state.add_turn(user_query, _conversation_state.output or "")
