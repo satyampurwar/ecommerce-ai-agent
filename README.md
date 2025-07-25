@@ -189,39 +189,30 @@ graph LR
 ### Low-Level Components
 
 ```mermaid
+---
+config:
+  look: neo
+  theme: neo
+  layout: dagre
+---
 flowchart TD
-    U[User]
-    Web[Gradio Web App]
-    Workflow[LangGraph Workflow]
-    Perception["Perception Node<br/>(intent classification)"]
-    ToolNode["Tool Node"]
-    Answer["Answer Node<br/>(rephrase)"]
-    Learning["Learning Node<br/>(logging)"]
-    Tools["Business Tools"]
-    DB[(SQLite DB)]
-    Vector["Chroma Vector Store"]
-    LLM["LLM API"]
-    Logs["agent_interactions.log"]
-
-
-    U -->| "1) User Query" | Web
-    Web -->| "2" | Workflow
-    Workflow -->| "2.1) Start" | Perception
-    Perception -->| "Request" | LLM
-    LLM -->| "Response" | Perception
-    Perception -->| "2.2" | ToolNode
-    ToolNode -->| "Internal" | Tools
-    Tools -->| "Querying Relational Database" | DB
-    DB -->| "Returning Data" | Tools
-    Tools -->| "Searching Vector Database" | Vector
-    Vector -->| "Returning Chunks" | Tools
-    Tools -->| "Internal" | ToolNode
-    ToolNode -->| "2.3" | Answer
-    Answer -->| "Request" | LLM
-    LLM -->| "Response" | Answer
-    Answer -->| "2.4) End" | Learning
-    Learning -->| "Storing Query & Response" | Logs
-    Answer -->| "3) Response to User" | Web
+    U["User"] -- 1: User Query --> Web["Gradio Web App"]
+    Web -- 2 --> Workflow["LangGraph Workflow"]
+    Workflow -- "2.1: Start" --> Perception["Perception Node - intent classification"]
+    Perception -- Request --> LLM["LLM API"]
+    LLM -- Response --> Perception & Answer["Answer Node - rephrase"]
+    Perception -- "2.2" --> ToolNode["Tool Node"]
+    ToolNode -- Internal --> Tools["Business Tools"]
+    Tools -- Querying Relational Database --> DB[("SQLite DB")]
+    DB -- Returning Data --> Tools
+    Tools -- Searching Vector Database --> Vector[("Chroma Vector Store")]
+    Vector -- Returning Chunks --> Tools
+    Tools -- Internal --> ToolNode
+    ToolNode -- "2.3" --> Answer
+    Answer -- Request --> LLM
+    Answer -- "2.4: End" --> Learning["Learning Node - logging"]
+    Learning -- Storing Query and Response --> Logs["agent_interactions.log"]
+    Answer -- 3: Response to User --> Web
 ```
 
 ---
