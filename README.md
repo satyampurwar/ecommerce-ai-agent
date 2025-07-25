@@ -217,6 +217,49 @@ flowchart TD
 
 ---
 
+## Evaluation Metrics
+
+The agent logs every question and answer to `agent_interactions.log`. The path
+is configured via the `LOG_FILE` constant in `config.py`:
+
+```python
+LOG_FILE = os.getenv("LOG_FILE", "agent_interactions.log")
+```
+
+The actual logging happens inside `agent/workflow.py`:
+
+```python
+def log_interaction(user_query: str, agent_answer: str):
+    """Logs Q&A for learning, retraining, or analytics."""
+    with open(LOG_FILE, "a", encoding="utf-8") as f:
+        f.write(
+            f"{datetime.datetime.now().isoformat()} | Q: {user_query} | A: {agent_answer}\n"
+        )
+```
+
+To evaluate the agent:
+
+1. Run some of the sample questions above (or your own prompts).
+2. Review the entries in `agent_interactions.log` and compare them with your
+   expected answers.
+
+Suggested metrics for analyzing these logs include:
+
+1. **Intent classification accuracy** – compare detected intents with a labeled dataset.
+2. **Retrieval precision/recall** – check FAQ results against ground-truth answers.
+3. **Database query correctness** – verify order status and other details against your database.
+4. **Response quality** – measure rephrased answers (e.g., with BLEU or ROUGE) or perform manual review.
+5. **User satisfaction** – track explicit user ratings or feedback over time.
+
+| Step | Goal                      | Metric                   | Use Case                                       |
+| ---- | ------------------------- | ------------------------ | ---------------------------------------------- |
+| 1    | Intent classification     | Accuracy / F1            | Evaluate `classify_intent` predictions         |
+| 2    | Matching correct FAQs     | Precision@k / Recall@k   | Evaluate FAQ retrieval (`search_faq`)          |
+| 3    | Database query results    | Exact match accuracy     | Evaluate order tools (`get_order_status`, `get_order_details`) |
+| 4    | Quality of rephrased text | BLEU / ROUGE             | Evaluate rephrasing (`rephrase_text`)          |
+| 5    | Overall user satisfaction | Rating / manual review   | Human evaluation across full interaction       |
+---
+
 ## Configuration
 
 Edit `config.py` to set:
