@@ -214,7 +214,10 @@ flowchart TD
     Perception --> ToolNode
     ToolNode --> Tools
     Tools --> DB
+    DB --> Tools
     Tools --> Vector
+    Vector --> Tools
+    Tools --> ToolNode
     ToolNode --> Answer
     Answer --> LLM
     LLM --> Answer
