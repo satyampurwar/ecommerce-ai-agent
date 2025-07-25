@@ -1,41 +1,33 @@
-"""Typed state objects used by :mod:`agent.workflow`."""
+"""Pydantic models for workflow state and short-term memory."""
 
-from typing import TypedDict, Optional, List, Dict, Any
+from __future__ import annotations
 
-class AgentState(TypedDict, total=False):
-    """
-    The main state dict passed through the agent workflow graph.
-    - input: The user's query (string).
-    - classification: The intent determined by the LLM (string).
-    - tool_output: The result of calling a tool (string).
-    - output: The final agent answer to be returned (string).
-    - history: (Optional) List of past Q&A interactions.
-    - intermediate_steps: (Optional) Used for multi-hop reasoning or tool chaining.
-    - context: (Optional) Dict for storing temporary values, e.g. extracted entities, order_id, etc.
-    """
-    input: str
-    classification: str
-    tool_output: str
-    output: str
-    history: Optional[List[Dict[str, Any]]]
-    intermediate_steps: Optional[List[Dict[str, Any]]]
-    context: Optional[Dict[str, Any]]
+from typing import Optional, List, Dict, Any
 
-# Example helper: define a single Q&A turn (for history, if you wish to support conversation memory)
-class AgentTurn(TypedDict):
+from pydantic import BaseModel, Field
+
+
+class AgentTurn(BaseModel):
+    """Single user/agent exchange stored in history."""
+
     user: str
     agent: str
 
-# Example helper: use this to append to state['history']
-def add_turn_to_history(state: AgentState, user: str, agent: str):
-    """
-    Adds a Q&A pair to the state's history list.
-    """
-    if 'history' not in state or state['history'] is None:
-        state['history'] = []
-    state['history'].append({'user': user, 'agent': agent})
-    return state
 
-# Usage in your workflow:
-# from agent.state import AgentState, add_turn_to_history
-# state = add_turn_to_history(state, user_query, agent_answer)
+class AgentState(BaseModel):
+    """State object passed through the LangGraph workflow."""
+
+    input: str
+    classification: Optional[str] = None
+    tool_output: Optional[str] = None
+    output: Optional[str] = None
+    history: List[AgentTurn] = Field(default_factory=list)
+    intermediate_steps: Optional[List[Dict[str, Any]]] = None
+    context: Optional[Dict[str, Any]] = None
+
+    def add_turn(self, user: str, agent: str, limit: int = 3) -> None:
+        """Append a Q&A pair and trim history to the last ``limit`` turns."""
+
+        self.history.append(AgentTurn(user=user, agent=agent))
+        if limit > 0:
+            self.history = self.history[-limit:]

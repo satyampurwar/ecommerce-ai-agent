@@ -45,6 +45,7 @@ def db_has_orders() -> bool:
 def cli_loop():
     """
     Simple command-line chat loop for testing the agent.
+    Conversation state is kept in memory between turns.
     """
     print("\nEcommerce AI Agent (type 'quit' or 'exit' to stop).")
     while True:
