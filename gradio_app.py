@@ -15,7 +15,7 @@ def ensure_setup():
 ensure_setup()
 
 def gradio_ask(message: str, history: list[tuple[str, str]]) -> str:
-    """Wrapper for gradio ChatInterface."""
+    """Return the agent response, ignoring history (managed internally)."""
     return ask_agent(message)
 
 # Instantiate the basic chat interface

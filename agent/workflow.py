@@ -76,7 +76,7 @@ def answer_node(state: AgentState) -> AgentState:
     Formats the output for final agent answer.
     """
     # Take the raw tool output and rephrase it for a nicer user experience
-    answer = state.tool_output
+    answer = state.tool_output or ""
     rephrased = rephrase_text(answer)
     state.output = rephrased
     return state
@@ -133,6 +133,7 @@ def ask_agent(user_query: str) -> str:
 
     # Execute the workflow and update state
     _conversation_state = graph.invoke(_conversation_state)
+    assert _conversation_state is not None
     # Append to short-term history (keep last 3 turns)
     _conversation_state.add_turn(user_query, _conversation_state.output or "")
     return _conversation_state.output or ""

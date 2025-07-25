@@ -26,6 +26,7 @@ RUN pip install --no-cache-dir \
     openai>=1.25.0 \
     python-dotenv>=1.0.1 \
     typing-extensions>=4.11.0 \
+    pydantic>=2.7.1 \
     sentence-transformers>=0.6.0 \
     gradio>=4.24.0
 
