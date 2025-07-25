@@ -167,6 +167,63 @@ Try these example prompts to explore the agent's capabilities:
 
 ---
 
+## System Design
+
+### High-Level Architecture
+
+```mermaid
+graph LR
+    subgraph Setup
+        A[CSV Data] -->|populate| B[SQLite DB]
+        C[FAQ Dataset] -->|embed & store| D[Chroma Vector Store]
+    end
+    E["User Interface<br/>(CLI or Gradio Web UI)"] --> F["LangGraph Workflow"]
+    F --> G["Intent Classifier<br/>LLM"]
+    F --> H["Tool Dispatcher"]
+    H --> B
+    H --> D
+    H --> I["Answer Rephrasing<br/>LLM"]
+    I --> J["Final Response"]
+```
+
+### Low-Level Components
+
+```mermaid
+flowchart TD
+    U[User]
+    CLI[CLI App]
+    Web[Gradio Web App]
+    Workflow[LangGraph Workflow]
+    Perception["Perception Node<br/>(intent classification)"]
+    ToolNode[Tool Node]
+    Answer["Answer Node<br/>(rephrase)"]
+    Learning["Learning Node<br/>(logging)"]
+    Tools[Business Tools]
+    DB[(SQLite DB)]
+    Vector[Chroma Vector Store]
+    LLM[LLM API]
+    Logs[[agent_interactions.log]]
+
+    U -->|query| CLI
+    U -->|query| Web
+    CLI --> Workflow
+    Web --> Workflow
+    Workflow --> Perception
+    Perception --> LLM
+    Perception --> ToolNode
+    ToolNode --> Tools
+    Tools --> DB
+    Tools --> Vector
+    ToolNode --> Answer
+    Answer --> LLM
+    Answer --> Learning
+    Learning --> Logs
+    Answer -->|response| CLI
+    Answer -->|response| Web
+```
+
+---
+
 ## Configuration
 
 Edit `config.py` to set:
