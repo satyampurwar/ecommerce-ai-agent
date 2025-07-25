@@ -191,7 +191,6 @@ graph LR
 ```mermaid
 flowchart TD
     U[User]
-    CLI[CLI App]
     Web[Gradio Web App]
     Workflow[LangGraph Workflow]
     Perception["Perception Node<br/>(intent classification)"]
@@ -204,27 +203,24 @@ flowchart TD
     LLM[LLM API]
     Logs[[agent_interactions.log]]
 
-    U -->|1 query| CLI
-    U -->|2 query| Web
-    CLI -->|3| Workflow
-    Web -->|4| Workflow
-    Workflow -->|5| Perception
-    Perception -->|6| LLM
-    LLM -->|7| Perception
-    Perception -->|8| ToolNode
-    ToolNode -->|9| Tools
-    Tools -->|10| DB
-    DB -->|11| Tools
-    Tools -->|12| Vector
-    Vector -->|13| Tools
-    Tools -->|14| ToolNode
-    ToolNode -->|15| Answer
-    Answer -->|16| LLM
-    LLM -->|17| Answer
-    Answer -->|18| Learning
-    Learning -->|19| Logs
-    Answer -->|20 response| CLI
-    Answer -->|21 response| Web
+    U -->|1) User Query| Web
+    Web -->|2| Workflow
+    Workflow -->|2.1) Start| Perception
+    Perception -->|Request| LLM
+    LLM -->|Response| Perception
+    Perception -->|2.2| ToolNode
+    ToolNode -->|Internal| Tools
+    Tools -->|Querying Relational Database| DB
+    DB -->|Returning Results| Tools
+    Tools -->|Searching Vector Database| Vector
+    Vector -->|Returning Chunks| Tools
+    Tools -->|Internal| ToolNode
+    ToolNode -->|2.3| Answer
+    Answer -->|Request| LLM
+    LLM -->|Response| Answer
+    Answer -->|2.4) End| Learning
+    Learning -->|Storing Query & Response| Logs
+    Answer -->|3) Response to User| Web
 ```
 
 ---
