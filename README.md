@@ -202,24 +202,25 @@ flowchart TD
     Vector[Chroma Vector Store]
     LLM[LLM API]
     Logs[agent_interactions.log]
-    U -->|1) User Query| Web
+    
+    U -->|"1) User Query"| Web
     Web -->|2| Workflow
-    Workflow -->|2.1) Start| Perception
+    Workflow -->|"2.1) Start"| Perception
     Perception -->|Request| LLM
     LLM -->|Response| Perception
-    Perception -->|2.2| ToolNode
+    Perception -->|"2.2"| ToolNode
     ToolNode -->|Internal| Tools
     Tools -->|Querying Relational Database| DB
     DB -->|Returning Results| Tools
     Tools -->|Searching Vector Database| Vector
     Vector -->|Returning Chunks| Tools
     Tools -->|Internal| ToolNode
-    ToolNode -->|2.3| Answer
+    ToolNode -->|"2.3"| Answer
     Answer -->|Request| LLM
     LLM -->|Response| Answer
-    Answer -->|2.4) End| Learning
+    Answer -->|"2.4) End"| Learning
     Learning -->|Storing Query & Response| Logs
-    Answer -->|3) Response to User| Web
+    Answer -->|"3) Response to User"| Web
 ```
 
 ---
