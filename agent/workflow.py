@@ -136,6 +136,7 @@ def ask_agent(user_query: str) -> str:
     _conversation_state = graph.invoke(
         _conversation_state, config={"configurable": {"thread_id": _THREAD_ID}}
     )
+
     if isinstance(_conversation_state, dict):
         _conversation_state = AgentState.model_validate(_conversation_state)
     assert _conversation_state is not None
