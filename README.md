@@ -177,13 +177,13 @@ graph LR
         A[CSV Data] -->|populate| B[SQLite DB]
         C[FAQ Dataset] -->|embed & store| D[Chroma Vector Store]
     end
-    E[User Interface<br>(CLI / Gradio Web UI)] --> F[LangGraph Workflow]
-    F --> G[Intent Classifier<br>(LLM)]
-    F --> H[Tool Dispatcher]
+    E["User Interface<br/>(CLI or Gradio Web UI)"] --> F["LangGraph Workflow"]
+    F --> G["Intent Classifier<br/>LLM"]
+    F --> H["Tool Dispatcher"]
     H --> B
     H --> D
-    H --> I[Answer Rephrasing<br>(LLM)]
-    I --> J[Final Response]
+    H --> I["Answer Rephrasing<br/>LLM"]
+    I --> J["Final Response"]
 ```
 
 ### Low-Level Components
@@ -194,10 +194,10 @@ flowchart TD
     CLI[CLI App]
     Web[Gradio Web App]
     Workflow[LangGraph Workflow]
-    Perception[Perception Node\n(intent classification)]
+    Perception["Perception Node<br/>(intent classification)"]
     ToolNode[Tool Node]
-    Answer[Answer Node\n(rephrase)]
-    Learning[Learning Node\n(logging)]
+    Answer["Answer Node<br/>(rephrase)"]
+    Learning["Learning Node<br/>(logging)"]
     Tools[Business Tools]
     DB[(SQLite DB)]
     Vector[Chroma Vector Store]
