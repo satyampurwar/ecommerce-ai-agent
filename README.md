@@ -242,6 +242,7 @@ To evaluate the agent:
 1. Run some of the sample questions above (or your own prompts).
 2. Review the entries in `agent_interactions.log` and compare them with your
    expected answers.
+3. Note: Only the user query and final response are currently logged, but responses from intermediate steps can also be logged as needed for the evaluation plan outlined below.
 
 Suggested metrics for analyzing these logs include:
 
@@ -255,7 +256,7 @@ Suggested metrics for analyzing these logs include:
 | ---- | ------------------------- | ------------------------ | ---------------------------------------------- |
 | 1    | Intent classification     | Accuracy / F1            | Evaluate `classify_intent` predictions         |
 | 2    | Matching correct FAQs     | Precision@k / Recall@k   | Evaluate FAQ retrieval (`search_faq`)          |
-| 3    | Database query results    | Exact match accuracy     | Evaluate order tools (`get_order_status`, `get_order_details`) |
+| 3    | Database query results    | Exact match accuracy     | Evaluate order tools (`get_order_status`, `get_refund_status`, `get_review`, `get_order_details`) |
 | 4    | Quality of rephrased text | BLEU / ROUGE             | Evaluate rephrasing (`rephrase_text`)          |
 | 5    | Overall user satisfaction | Rating / manual review   | Human evaluation across full interaction       |
 ---
