@@ -1,6 +1,7 @@
 """Workflow definition for the conversational agent."""
 
 from langgraph.graph import StateGraph
+from langgraph.checkpoint.memory import InMemorySaver
 from agent.state import AgentState
 from llm.llm import classify_intent, rephrase_text
 from tools.business_tools import (
@@ -31,21 +32,19 @@ def initialize_engine(database_url: str = DATABASE_URL):
     return engine
 
 def perception_node(state: AgentState) -> AgentState:
-    """
-    Intent classification node: uses LLM to determine query intent.
-    """
-    query = state["input"]
+    """Intent classification node."""
+
+    query = state.input
     # Use the LLM to determine what the user wants to do
     intent = classify_intent(query)
-    state["classification"] = intent
+    state.classification = intent
     return state
 
 def tool_node(state: AgentState) -> AgentState:
-    """
-    Dispatch to the correct tool based on classified intent.
-    """
-    classification = state["classification"]
-    query = state["input"]
+    """Dispatch to the correct tool based on classified intent."""
+
+    classification = state.classification
+    query = state.input
     # Lazily create DB engine and session for each invocation
     engine_local = initialize_engine()
     session = get_session(engine_local)
@@ -69,7 +68,7 @@ def tool_node(state: AgentState) -> AgentState:
     finally:
         # Always close the DB session
         session.close()
-    state["tool_output"] = output
+    state.tool_output = output
     return state
 
 def answer_node(state: AgentState) -> AgentState:
@@ -77,12 +76,12 @@ def answer_node(state: AgentState) -> AgentState:
     Formats the output for final agent answer.
     """
     # Take the raw tool output and rephrase it for a nicer user experience
-    answer = state["tool_output"]
+    answer = state.tool_output
     rephrased = rephrase_text(answer)
-    state["output"] = rephrased
+    state.output = rephrased
     return state
 
-def log_interaction(user_query: str, agent_answer: str):
+def log_interaction(user_query: str, agent_answer: str) -> None:
     """
     Logs Q&A for learning, retraining, or analytics.
     """
@@ -93,17 +92,15 @@ def log_interaction(user_query: str, agent_answer: str):
         )
 
 def learning_node(state: AgentState) -> AgentState:
-    """
-    Learning step: log output for future improvement.
-    """
-    log_interaction(state.get("input", ""), state.get("output", ""))
+    """Learning step: log output for future improvement."""
+
+    log_interaction(state.input, state.output or "")
     return state
 
 def build_workflow() -> StateGraph:
-    """
-    Compiles the LangGraph workflow using AgentState.
-    Returns the compiled StateGraph.
-    """
+    """Compile the LangGraph workflow with in-memory checkpointing."""
+
+    checkpointer = InMemorySaver()
     workflow = StateGraph(AgentState)
     workflow.add_node("perception", perception_node)
     workflow.add_node("tool_use", tool_node)
@@ -113,21 +110,32 @@ def build_workflow() -> StateGraph:
     workflow.add_edge("perception", "tool_use")
     workflow.add_edge("tool_use", "answer")
     workflow.add_edge("answer", "learning")
-    return workflow.compile()
+    return workflow.compile(checkpointer=checkpointer)
 
 # --- Main agent callable ---
 
 graph = build_workflow()
 
+_conversation_state: AgentState | None = None
+
+
 def ask_agent(user_query: str) -> str:
-    """
-    Single entrypoint for conversational agent.
-    Returns agent's answer for a user query.
-    """
-    state = {"input": user_query}
-    # Execute the workflow graph and return the final answer
-    result = graph.invoke(state)
-    return result["output"]
+    """Single entrypoint for the conversational agent with short-term memory."""
+
+    global _conversation_state
+    if _conversation_state is None:
+        _conversation_state = AgentState(input=user_query)
+    else:
+        _conversation_state.input = user_query
+        _conversation_state.classification = None
+        _conversation_state.tool_output = None
+        _conversation_state.output = None
+
+    # Execute the workflow and update state
+    _conversation_state = graph.invoke(_conversation_state)
+    # Append to short-term history (keep last 3 turns)
+    _conversation_state.add_turn(user_query, _conversation_state.output or "")
+    return _conversation_state.output or ""
 
 # Example usage for CLI
 if __name__ == "__main__":
